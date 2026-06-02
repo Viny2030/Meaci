@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
+from contextlib import asynccontextmanager
 from typing import Optional
 import os
 from pathlib import Path
@@ -13,26 +14,13 @@ from .models import (
     Caso, Empresa, Resolucion, PresenciaAR, Alerta
 )
 
-app = FastAPI(
-    title="MEACI — Monitor de Empresas Argentinas en Casos Internacionales",
-    description="Ph.D. Vicente H. Monteverde · Algoritmos contra la Corrupción",
-    version="1.0.0",
-)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET"],
-    allow_headers=["*"],
-)
+# ── LIFESPAN (reemplaza on_event deprecated) ──────────────────────────────────
 
-
-# ── STARTUP ───────────────────────────────────────────────────────────────────
-
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     crear_tablas()
-    # Si la base está vacía, correr seed automáticamente
     db = next(get_db())
     try:
         if db.query(Caso).count() == 0:
@@ -42,13 +30,29 @@ async def startup():
             seed()
     finally:
         db.close()
+    yield
+    # Shutdown (nada por ahora)
+
+
+app = FastAPI(
+    title="MEACI — Monitor de Empresas Argentinas en Casos Internacionales",
+    description="Ph.D. Vicente H. Monteverde · Algoritmos contra la Corrupción",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 # ── FRONTEND ──────────────────────────────────────────────────────────────────
 
 frontend_path = Path(__file__).parent.parent / "frontend"
-if frontend_path.exists():
-    app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
 
 @app.get("/", include_in_schema=False)
 async def root():
@@ -289,3 +293,8 @@ def health(db: Session = Depends(get_db)):
         "casos": db.query(Caso).count(),
         "empresas": db.query(Empresa).count(),
     }
+
+# ── STATIC FILES (siempre al final — no interfiere con rutas /api) ────────────
+
+if frontend_path.exists():
+    app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
