@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+
+  <!-- Configuración 1: Levantar servidor MEACI -->
+  <configuration default="false" name="MEACI · Servidor" type="PythonConfigurationType" factoryName="Python">
+    <module name="meaci" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONPATH" value="$PROJECT_DIR$" />
+    </envs>
+    <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="IS_MODULE_SDK" value="false" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="SCRIPT_NAME" value="-m" />
+    <option name="PARAMETERS" value="uvicorn api.main:app --reload --port 8000 --host 0.0.0.0" />
+    <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="false" />
+    <option name="MODULE_MODE" value="true" />
+    <option name="REDIRECT_INPUT" value="false" />
+    <option name="INPUT_FILE" value="" />
+    <method v="2" />
+  </configuration>
+
+  <!-- Configuración 2: Seed de datos OCDE -->
+  <configuration default="false" name="MEACI · Seed OCDE" type="PythonConfigurationType" factoryName="Python">
+    <module name="meaci" />
+    <envs>
+      <env name="PYTHONPATH" value="$PROJECT_DIR$" />
+    </envs>
+    <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="SCRIPT_NAME" value="-m" />
+    <option name="PARAMETERS" value="data.ocde_seed" />
+    <option name="MODULE_MODE" value="true" />
+    <method v="2" />
+  </configuration>
+
+  <!-- Configuración 3: Cron manual -->
+  <configuration default="false" name="MEACI · Cron manual" type="PythonConfigurationType" factoryName="Python">
+    <module name="meaci" />
+    <envs>
+      <env name="PYTHONPATH" value="$PROJECT_DIR$" />
+    </envs>
+    <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="SCRIPT_NAME" value="cron.py" />
+    <option name="MODULE_MODE" value="false" />
+    <method v="2" />
+  </configuration>
+
+  <!-- Configuración 4: Tests -->
+  <configuration default="false" name="MEACI · Tests" type="PythonConfigurationType" factoryName="Python">
+    <module name="meaci" />
+    <envs>
+      <env name="PYTHONPATH" value="$PROJECT_DIR$" />
+    </envs>
+    <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="SCRIPT_NAME" value="-m" />
+    <option name="PARAMETERS" value="pytest tests/ -v" />
+    <option name="MODULE_MODE" value="true" />
+    <method v="2" />
+  </configuration>
+
+</component>
