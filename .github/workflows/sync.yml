@@ -1,0 +1,27 @@
+name: Sync MEACI — scrapers semanales
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Lunes 6am UTC
+  workflow_dispatch:        # también se puede correr a mano desde GitHub
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Correr sync
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python utils/sync.py
