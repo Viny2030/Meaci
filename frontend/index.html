@@ -1,1 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEACI · Monitor de Empresas Argentinas en Casos Internacionales</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f4ef;
+    --bg3: #eeede8;
+    --text: #1a1a19;
+    --text2: #5f5e5a;
+    --text3: #888780;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --danger-bg: #fcebeb; --danger-text: #a32d2d; --danger-border: #f09595;
+    --warn-bg: #faeeda;   --warn-text: #854f0b;   --warn-border: #ef9f27;
+    --info-bg: #e6f1fb;   --info-text: #185fa5;   --info-border: #85b7eb;
+    --ok-bg: #eaf3de;     --ok-text: #3b6d11;     --ok-border: #97c459;
+    --radius: 8px; --radius-lg: 12px;
+    --mono: 'Courier New', monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a19; --bg2: #242422; --bg3: #2e2e2b;
+      --text: #e8e7e1; --text2: #9c9a92; --text3: #5f5e5a;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+      --danger-bg: #501313; --danger-text: #f09595;
+      --warn-bg: #412402;   --warn-text: #fac775;
+      --info-bg: #042c53;   --info-text: #85b7eb;
+      --ok-bg: #173404;     --ok-text: #c0dd97;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
 
+  /* NAV */
+  nav { border-bottom: 0.5px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 0; height: 48px; }
+  .nav-brand { font-weight: 500; font-size: 14px; margin-right: 24px; white-space: nowrap; }
+  .nav-brand span { color: var(--text2); font-weight: 400; }
+  .nav-links { display: flex; gap: 2px; }
+  .nav-links a { padding: 6px 12px; border-radius: var(--radius); font-size: 13px; color: var(--text2); text-decoration: none; cursor: pointer; border: none; background: none; }
+  .nav-links a:hover, .nav-links a.active { background: var(--bg2); color: var(--text); }
+  .nav-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .nav-right a { font-size: 12px; color: var(--text3); text-decoration: none; }
+  .nav-right a:hover { color: var(--text2); }
+
+  /* LAYOUT */
+  .page { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* KPI GRID */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .kpi { background: var(--bg2); border-radius: var(--radius); padding: 14px 16px; }
+  .kpi-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .kpi-value { font-size: 26px; font-weight: 500; line-height: 1.1; }
+  .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .kpi-danger .kpi-value { color: var(--danger-text); }
+  .kpi-warn .kpi-value   { color: var(--warn-text); }
+  .kpi-info .kpi-value   { color: var(--info-text); }
+
+  /* SECTION HEADER */
+  .section-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .section-hdr h2 { font-size: 14px; font-weight: 500; }
+  .section-hdr .count { font-size: 12px; color: var(--text3); background: var(--bg2); padding: 2px 8px; border-radius: 10px; }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+  .filter-bar input, .filter-bar select {
+    font-size: 12px; padding: 6px 10px; border: 0.5px solid var(--border2);
+    border-radius: var(--radius); background: var(--bg); color: var(--text); height: 32px;
+  }
+  .filter-bar input { flex: 1; min-width: 160px; }
+  .filter-bar input:focus, .filter-bar select:focus { outline: none; border-color: var(--info-border); }
+
+  /* TABLE */
+  .table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  thead th { font-size: 11px; font-weight: 500; color: var(--text2); text-align: left; padding: 8px 10px; border-bottom: 0.5px solid var(--border); background: var(--bg2); }
+  tbody td { padding: 8px 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--bg2); cursor: pointer; }
+  .t-strong { font-weight: 500; }
+
+  /* PILLS */
+  .pill { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+  .p-alta   { background: var(--danger-bg); color: var(--danger-text); }
+  .p-media  { background: var(--warn-bg);   color: var(--warn-text); }
+  .p-baja   { background: var(--ok-bg);     color: var(--ok-text); }
+  .p-info   { background: var(--info-bg);   color: var(--info-text); }
+  .p-muted  { background: var(--bg3);       color: var(--text3); }
+  .badge-ar { background: var(--danger-bg); color: var(--danger-text); font-size: 10px; padding: 1px 6px; border-radius: 10px; }
+
+  /* CARDS GRID */
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; cursor: pointer; transition: border-color .15s; }
+  .card:hover { border-color: var(--border2); }
+  .card-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .card-sub { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+  .card-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+
+  /* DETALLE PANEL */
+  .detalle { background: var(--bg2); border-radius: var(--radius-lg); padding: 16px; margin-top: 16px; }
+  .detalle-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
+  .detalle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .detalle-row { font-size: 12px; }
+  .detalle-row .lbl { color: var(--text2); margin-right: 6px; }
+  .res-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+  .res-table th { font-size: 11px; font-weight: 500; color: var(--text2); text-align: left; padding: 6px 8px; border-bottom: 0.5px solid var(--border); }
+  .res-table td { padding: 6px 8px; border-bottom: 0.5px solid var(--border); }
+  .res-table tr:last-child td { border-bottom: none; }
+
+  /* CRUCE WIDGET */
+  .cruce-box { background: var(--bg2); border-radius: var(--radius-lg); padding: 16px; max-width: 520px; }
+  .cruce-result { margin-top: 14px; padding: 12px; border-radius: var(--radius); font-size: 13px; }
+  .cruce-ok  { background: var(--ok-bg);     border-left: 2px solid var(--ok-border);     }
+  .cruce-mal { background: var(--danger-bg); border-left: 2px solid var(--danger-border); }
+
+  /* ALERTAS */
+  .alerta-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); }
+  .alerta-row:last-child { border-bottom: none; }
+  .alerta-row:hover { background: var(--bg2); cursor: pointer; }
+
+  /* AVISO */
+  .aviso { background: var(--warn-bg); border-left: 2px solid var(--warn-border); padding: 10px 14px; font-size: 12px; color: var(--warn-text); margin-bottom: 16px; }
+
+  /* FOOTER */
+  footer { border-top: 0.5px solid var(--border); padding: 16px 24px; font-size: 11px; color: var(--text3); display: flex; gap: 16px; }
+  footer a { color: var(--text3); text-decoration: none; }
+  footer a:hover { color: var(--text2); }
+
+  /* LOADING */
+  .loading { color: var(--text3); font-size: 13px; padding: 24px 0; text-align: center; }
+  .error-msg { color: var(--danger-text); font-size: 13px; padding: 16px; background: var(--danger-bg); border-radius: var(--radius); }
+
+  @media (max-width: 700px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .cards-grid { grid-template-columns: 1fr; }
+    .detalle-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">MEACI <span>· Monitor internacional</span></div>
+  <div class="nav-links">
+    <a onclick="showPage('casos')" id="nav-casos" class="active">Casos MJR</a>
+    <a onclick="showPage('empresas')" id="nav-empresas">Empresas</a>
+    <a onclick="showPage('presencia')" id="nav-presencia">Presencia AR</a>
+    <a onclick="showPage('cruce')" id="nav-cruce">Cruce CUIT</a>
+    <a onclick="showPage('alertas')" id="nav-alertas">Alertas</a>
+  </div>
+  <div class="nav-right">
+    <a href="/docs" target="_blank">API docs</a>
+    <a href="https://mapatransparencia-production.up.railway.app" target="_blank">Mapa principal</a>
+  </div>
+</nav>
+
+<!-- KPIs globales — siempre visibles -->
+<div style="padding: 16px 24px 0; max-width: 1100px; margin: 0 auto;">
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Casos MJR documentados</div>
+      <div class="kpi-value" id="kpi-casos">—</div>
+      <div class="kpi-sub">2008 – 2026 · Fuente OCDE</div>
+    </div>
+    <div class="kpi kpi-info">
+      <div class="kpi-label">Resoluciones totales</div>
+      <div class="kpi-value" id="kpi-res">—</div>
+      <div class="kpi-sub">NTRs + 1 trial</div>
+    </div>
+    <div class="kpi kpi-danger">
+      <div class="kpi-label">Con presencia en Argentina</div>
+      <div class="kpi-value" id="kpi-ar">—</div>
+      <div class="kpi-sub">filiales · contratos · operaciones</div>
+    </div>
+    <div class="kpi kpi-warn">
+      <div class="kpi-label">Sanciones totales (USD 2024)</div>
+      <div class="kpi-value" id="kpi-monto">—</div>
+      <div class="kpi-sub">Argentina no cobró demand-side</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: CASOS -->
+<div class="page active" id="page-casos">
+  <div class="aviso">
+    Herramienta experimental y académica. Datos de fuentes públicas oficiales. Los resultados son indicadores algorítmicos — no implican juicio de valor ni acusación. Ph.D. V. H. Monteverde · <a href="mailto:vhmonte@retina.ar">vhmonte@retina.ar</a>
+  </div>
+
+  <div class="section-hdr">
+    <h2>Casos MJR documentados</h2>
+    <span class="count" id="count-casos">cargando...</span>
+  </div>
+
+  <div class="filter-bar">
+    <input type="text" id="f-q" placeholder="Buscar empresa..." oninput="filtrarCasos()">
+    <select id="f-pais" onchange="filtrarCasos()">
+      <option value="">Todos los países</option>
+      <option>Estados Unidos</option>
+      <option>Reino Unido</option>
+      <option>Francia</option>
+      <option>Brasil</option>
+      <option>Suiza</option>
+      <option>Sudáfrica</option>
+    </select>
+    <select id="f-ar" onchange="filtrarCasos()">
+      <option value="">Todos</option>
+      <option value="si">Con presencia AR</option>
+      <option value="no">Sin presencia AR</option>
+    </select>
+    <select id="f-tipo" onchange="filtrarCasos()">
+      <option value="">Todos los mecanismos</option>
+      <option>DPA</option>
+      <option>NPA</option>
+      <option>Plea</option>
+      <option>CJIP</option>
+      <option>Leniency</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">Empresa</th>
+          <th style="width:6%">Año</th>
+          <th style="width:18%">Mecanismo</th>
+          <th style="width:20%">Países</th>
+          <th style="width:12%">Sanción total</th>
+          <th style="width:14%">Filial AR</th>
+          <th style="width:10%">Alerta AR</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-casos"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
+    </table>
+  </div>
+
+  <div id="detalle-caso" style="display:none"></div>
+</div>
+
+<!-- PAGE: EMPRESAS -->
+<div class="page" id="page-empresas">
+  <div class="section-hdr">
+    <h2>Empresas sancionadas</h2>
+    <span class="count" id="count-empresas">cargando...</span>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="f-emp-q" placeholder="Buscar empresa o sector..." oninput="filtrarEmpresas()">
+    <select id="f-emp-ar" onchange="filtrarEmpresas()">
+      <option value="">Todas</option>
+      <option value="si">Con presencia en Argentina</option>
+      <option value="no">Sin presencia en Argentina</option>
+    </select>
+  </div>
+  <div class="cards-grid" id="grid-empresas"><div class="loading">Cargando...</div></div>
+</div>
+
+<!-- PAGE: PRESENCIA AR -->
+<div class="page" id="page-presencia">
+  <div class="section-hdr">
+    <h2>Presencia confirmada en Argentina</h2>
+    <span class="count" id="count-presencia">cargando...</span>
+  </div>
+  <div class="aviso">
+    Nota metodológica: presencia verificada vía AFIP (filial registrada), COMPR.AR (contrato activo), o datos públicos. El cruce por CUIT es el método principal — la tabla de correspondencia CUIT_AR → entidad OCDE se actualiza manualmente.
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">Empresa OCDE</th>
+          <th style="width:30%">Filial / Razón social AR</th>
+          <th style="width:18%">CUIT conocido</th>
+          <th style="width:16%">Sector</th>
+          <th style="width:14%">Alerta</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-presencia"><tr><td colspan="5" class="loading">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE: CRUCE CUIT -->
+<div class="page" id="page-cruce">
+  <div class="section-hdr"><h2>Verificar CUIT contra lista OCDE</h2></div>
+  <p style="font-size:13px; color:var(--text2); margin-bottom:16px;">
+    Ingresá un CUIT de proveedor del Estado para verificar si pertenece a una empresa sancionada en casos internacionales de corrupción. Este es el endpoint que consumen los otros monitores.
+  </p>
+  <div class="cruce-box">
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="cuit-input" placeholder="30-12345678-9" maxlength="13" style="flex:1; font-family:var(--mono); font-size:14px; padding:8px 12px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--bg); color:var(--text);" oninput="limpiarCruce()" onkeydown="if(event.key==='Enter') verificarCuit()">
+      <button onclick="verificarCuit()" style="padding:8px 16px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--bg); color:var(--text); cursor:pointer; font-size:13px;">Verificar</button>
+    </div>
+    <div style="font-size:11px; color:var(--text3); margin-top:6px;">Ejemplos: 30-54667581-3 (Siemens) · 30-69142665-7 (SAP) · 30-57655868-3 (ABB)</div>
+    <div id="cruce-result"></div>
+  </div>
+
+  <div style="margin-top:24px;">
+    <div class="section-hdr"><h2>Integración con otras plataformas</h2></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+      <div class="card">
+        <div class="card-title">Endpoint para Contratos v1 y v2</div>
+        <div style="font-family:var(--mono); font-size:11px; background:var(--bg3); padding:8px; border-radius:var(--radius); margin:8px 0; color:var(--text2);">GET /api/cruce-compr?cuit={cuit}</div>
+        <div style="font-size:11px; color:var(--text2);">Retorna <code>sancionada_ocde: true/false</code> + datos del caso. Se agrega como columna nueva en la tabla de proveedores.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Endpoint para Monitor IRI</div>
+        <div style="font-family:var(--mono); font-size:11px; background:var(--bg3); padding:8px; border-radius:var(--radius); margin:8px 0; color:var(--text2);">GET /api/alertas?plataforma=iri</div>
+        <div style="font-size:11px; color:var(--text2);">Lista de alertas activas filtradas por plataforma. El IRI las usa para calcular la nueva dimensión R_Internacional.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: ALERTAS -->
+<div class="page" id="page-alertas">
+  <div class="section-hdr">
+    <h2>Alertas activas en plataformas existentes</h2>
+    <span class="count" id="count-alertas">cargando...</span>
+  </div>
+  <div class="filter-bar">
+    <select id="f-alerta-nivel" onchange="filtrarAlertas()">
+      <option value="">Todos los niveles</option>
+      <option value="alta">Alta</option>
+      <option value="media">Media</option>
+      <option value="baja">Baja</option>
+    </select>
+    <select id="f-alerta-plat" onchange="filtrarAlertas()">
+      <option value="">Todas las plataformas</option>
+      <option value="contratos_v2">Contratos v2</option>
+      <option value="contratos_v1">Contratos v1</option>
+      <option value="ejecutivo">Monitor Ejecutivo</option>
+      <option value="iri">Monitor IRI</option>
+    </select>
+  </div>
+  <div class="table-wrap" id="alertas-contenedor">
+    <div class="loading">Cargando alertas...</div>
+  </div>
+</div>
+
+<footer>
+  <span>MEACI v1.0 · Ph.D. Vicente H. Monteverde</span>
+  <a href="mailto:vhmonte@retina.ar">vhmonte@retina.ar</a>
+  <a href="https://github.com/Viny2030/meaci" target="_blank">github.com/Viny2030/meaci</a>
+  <a href="/docs" target="_blank">API docs</a>
+  <a href="https://mapatransparencia-production.up.railway.app" target="_blank">Mapa principal</a>
+  <span style="margin-left:auto">Datos: DOJ · SFO · PNF · OCDE 2026</span>
+</footer>
+
+<script>
+// Detecta la URL del backend. Nunca retorna null.
+// Override: ?api=https://mi-dominio.com en la URL del browser
+const API = (() => {
+  try {
+    const override = new URLSearchParams(window.location.search).get('api');
+    if (override) return override.replace(/\/$/, '');
+
+    const proto = window.location.protocol;
+    const host  = window.location.hostname;
+    const port  = window.location.port;
+    const href  = window.location.href || '';
+
+    // file://, about:, PyCharm preview interno, o cualquier origen raro → localhost:8000
+    if (!proto || proto === 'file:' || proto === 'about:' || !host) {
+      return 'http://localhost:8000';
+    }
+    // localhost en cualquier puerto → siempre apuntar a 8000 (uvicorn)
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+      return 'http://localhost:8000';
+    }
+    // Producción (Railway, dominio real) → mismo origin
+    const origin = window.location.origin;
+    return (origin && origin !== 'null') ? origin : 'http://localhost:8000';
+  } catch(_) {
+    return 'http://localhost:8000';
+  }
+})();
+
+console.log('[MEACI] API base URL:', API);
+
+let datosCasos = [];
+let datosEmpresas = [];
+
+async function fetchJSON(path) {
+  try {
+    const r = await fetch(API + path);
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' en ' + path);
+    return await r.json();
+  } catch(e) {
+    console.error('[MEACI] fetch error:', path, e.message);
+    mostrarErrorConexion(e.message);
+    return null;
+  }
+}
+
+let errorBannerVisible = false;
+function mostrarErrorConexion(msg) {
+  if (errorBannerVisible) return;
+  errorBannerVisible = true;
+  const div = document.createElement('div');
+  div.id = 'error-conexion';
+  div.style.cssText = 'position:sticky;top:0;z-index:999;background:var(--danger-bg);color:var(--danger-text);border-bottom:0.5px solid var(--danger-border);padding:10px 24px;font-size:12px;display:flex;align-items:center;gap:12px;';
+  div.innerHTML = `
+    <strong>Sin conexión con la API.</strong>
+    Verificá que el servidor esté corriendo en <code style="font-family:var(--mono)">${API}</code>.
+    <span style="color:var(--text2);margin-left:4px">uvicorn api.main:app --reload --port 8000</span>
+    <button onclick="document.getElementById('error-conexion').remove();errorBannerVisible=false;cargarResumen();cargarCasos();"
+      style="margin-left:auto;padding:4px 10px;border:0.5px solid var(--danger-border);border-radius:6px;background:transparent;color:var(--danger-text);cursor:pointer;font-size:11px;">
+      Reintentar
+    </button>`;
+  document.body.insertBefore(div, document.body.firstChild);
+}
+
+function nivelPill(n) {
+  if (n === 'alta')  return '<span class="pill p-alta">alta</span>';
+  if (n === 'media') return '<span class="pill p-media">media</span>';
+  if (n === 'baja')  return '<span class="pill p-baja">baja</span>';
+  return '<span class="pill p-muted">—</span>';
+}
+
+function montoFmt(m) {
+  if (!m) return '—';
+  if (m >= 1000) return 'USD ' + (m/1000).toFixed(1) + 'B';
+  return 'USD ' + m.toFixed(0) + 'M';
+}
+
+async function cargarResumen() {
+  const d = await fetchJSON('/api/resumen');
+  if (!d) return;
+  document.getElementById('kpi-casos').textContent = d.total_casos;
+  document.getElementById('kpi-res').textContent = d.total_resoluciones;
+  document.getElementById('kpi-ar').textContent = d.con_presencia_argentina;
+  const m = d.monto_total_usd_millones;
+  document.getElementById('kpi-monto').textContent = m >= 1000 ? (m/1000).toFixed(1) + 'B' : m.toFixed(0) + 'M';
+}
+
+async function cargarCasos() {
+  const data = await fetchJSON('/api/casos');
+  if (!data) { document.getElementById('tbody-casos').innerHTML = '<tr><td colspan="7" class="error-msg">Error al cargar datos</td></tr>'; return; }
+  datosCasos = data;
+  renderCasos(data);
+}
+
+function renderCasos(data) {
+  document.getElementById('count-casos').textContent = data.length + ' casos';
+  const filas = data.map(c => `
+    <tr onclick="verDetalleCaso(${c.id})">
+      <td class="t-strong">${c.nombre_caso}</td>
+      <td>${c.anio_resolucion}</td>
+      <td style="font-family:var(--mono);font-size:11px">${c.tipo_resolucion.split('+')[0]}</td>
+      <td style="font-size:11px;color:var(--text2)">${c.paises}</td>
+      <td style="font-weight:500">${montoFmt(c.monto_total_usd_millones)}</td>
+      <td>${c.presencia_argentina ? '<span class="badge-ar">' + (JSON.parse(c.filiales_ar||'[]')[0] || 'sí') + '</span>' : '<span style="color:var(--text3);font-size:11px">—</span>'}</td>
+      <td>${c.presencia_argentina ? nivelPill(c.monto_total_usd_millones > 500 ? 'alta' : 'media') : nivelPill(null)}</td>
+    </tr>`).join('');
+  document.getElementById('tbody-casos').innerHTML = filas || '<tr><td colspan="7" style="color:var(--text3);padding:16px;text-align:center">Sin resultados</td></tr>';
+}
+
+function filtrarCasos() {
+  const q = document.getElementById('f-q').value.toLowerCase();
+  const pais = document.getElementById('f-pais').value;
+  const ar = document.getElementById('f-ar').value;
+  const tipo = document.getElementById('f-tipo').value;
+  const res = datosCasos.filter(c => {
+    if (q && !c.nombre_caso.toLowerCase().includes(q)) return false;
+    if (pais && !c.paises.includes(pais.slice(0,6))) return false;
+    if (ar === 'si' && !c.presencia_argentina) return false;
+    if (ar === 'no' && c.presencia_argentina) return false;
+    if (tipo && !c.tipo_resolucion.includes(tipo)) return false;
+    return true;
+  });
+  renderCasos(res);
+  document.getElementById('detalle-caso').style.display = 'none';
+}
+
+async function verDetalleCaso(id) {
+  const d = await fetchJSON('/api/casos/' + id);
+  if (!d) return;
+  const div = document.getElementById('detalle-caso');
+  div.style.display = 'block';
+  div.innerHTML = `
+    <div class="detalle">
+      <div class="detalle-title">${d.nombre_caso} · ${d.anio_resolucion}</div>
+      <div class="detalle-grid">
+        <div class="detalle-row"><span class="lbl">Mecanismo:</span>${d.tipo_resolucion}</div>
+        <div class="detalle-row"><span class="lbl">Países:</span>${d.paises}</div>
+        <div class="detalle-row"><span class="lbl">Sanción total:</span>${montoFmt(d.monto_total_usd_millones)}</div>
+        <div class="detalle-row"><span class="lbl">Estado:</span>${d.estado}</div>
+        ${d.presencia_argentina ? `<div class="detalle-row"><span class="lbl">Filiales AR:</span>${JSON.parse(d.filiales_ar||'[]').join(', ')}</div>` : ''}
+      </div>
+      <table class="res-table">
+        <thead><tr><th>Autoridad</th><th>País</th><th>Tipo</th><th>Monto</th><th>Año</th><th>Fuente</th></tr></thead>
+        <tbody>${(d.resoluciones||[]).map(r => `
+          <tr>
+            <td style="font-weight:500">${r.autoridad}</td>
+            <td>${r.pais}</td>
+            <td style="font-family:var(--mono);font-size:11px">${r.tipo}</td>
+            <td>${montoFmt(r.monto_usd_millones)}</td>
+            <td>${r.anio}</td>
+            <td><a href="${r.url_fuente}" target="_blank" style="color:var(--info-text);font-size:11px">ver →</a></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function cargarEmpresas() {
+  const data = await fetchJSON('/api/empresas');
+  if (!data) return;
+  datosEmpresas = data;
+  renderEmpresas(data);
+}
+
+function renderEmpresas(data) {
+  document.getElementById('count-empresas').textContent = data.length + ' empresas';
+  const grid = document.getElementById('grid-empresas');
+  grid.innerHTML = data.map(e => `
+    <div class="card" onclick="showPage('cruce')">
+      <div class="card-title">${e.nombre_matriz}</div>
+      <div class="card-sub">${e.sector} · ${e.pais_sede}</div>
+      <div class="card-pills">
+        ${e.presencia_argentina ? '<span class="pill p-alta">presencia AR</span>' : '<span class="pill p-muted">sin presencia AR</span>'}
+        ${e.cuits_ar && JSON.parse(e.cuits_ar).length ? '<span class="pill p-info">CUIT conocido</span>' : ''}
+      </div>
+    </div>`).join('');
+}
+
+function filtrarEmpresas() {
+  const q = document.getElementById('f-emp-q').value.toLowerCase();
+  const ar = document.getElementById('f-emp-ar').value;
+  const res = datosEmpresas.filter(e => {
+    if (q && !e.nombre_matriz.toLowerCase().includes(q) && !e.sector.toLowerCase().includes(q)) return false;
+    if (ar === 'si' && !e.presencia_argentina) return false;
+    if (ar === 'no' && e.presencia_argentina) return false;
+    return true;
+  });
+  renderEmpresas(res);
+}
+
+async function cargarPresencia() {
+  const data = await fetchJSON('/api/presencia-ar');
+  if (!data) return;
+  document.getElementById('count-presencia').textContent = data.length + ' empresas';
+  const filas = data.map(item => {
+    const e = item.empresa || item;
+    const nombre = e.nombre_matriz || e;
+    const filiales = JSON.parse(e.filiales_ar || item.filiales_ar || '[]');
+    const cuits = JSON.parse(e.cuits_ar || item.cuits_ar || '[]');
+    return `<tr>
+      <td class="t-strong">${nombre}</td>
+      <td style="font-size:11px">${filiales[0] || '—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text2)">${cuits[0] || '—'}</td>
+      <td style="font-size:11px;color:var(--text2)">${e.sector || '—'}</td>
+      <td>${nivelPill('alta')}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tbody-presencia').innerHTML = filas;
+}
+
+async function verificarCuit() {
+  const cuit = document.getElementById('cuit-input').value.trim();
+  if (!cuit) return;
+  document.getElementById('cruce-result').innerHTML = '<div style="color:var(--text3);font-size:12px;margin-top:12px">Verificando...</div>';
+  const d = await fetchJSON('/api/cruce-compr?cuit=' + encodeURIComponent(cuit));
+  if (!d) {
+    document.getElementById('cruce-result').innerHTML = '<div class="cruce-result cruce-mal">Error al consultar la API</div>';
+    return;
+  }
+  if (d.sancionada_ocde) {
+    const casos = (d.casos || []).map(c =>
+      `<div style="margin-top:6px;font-size:12px"><strong>${c.nombre}</strong> (${c.anio}) · ${montoFmt(c.monto_usd_millones)} · ${c.paises}</div>`
+    ).join('');
+    document.getElementById('cruce-result').innerHTML = `
+      <div class="cruce-result cruce-mal">
+        <div style="font-weight:500;font-size:13px;margin-bottom:4px">Sancionada por OCDE</div>
+        <div style="font-size:12px"><span style="color:var(--text2)">Matriz:</span> ${d.empresa_matriz} · ${d.pais_sede}</div>
+        ${casos}
+      </div>`;
+  } else {
+    document.getElementById('cruce-result').innerHTML = `
+      <div class="cruce-result cruce-ok">
+        <div style="font-weight:500;font-size:13px">Sin antecedentes OCDE</div>
+        <div style="font-size:12px;margin-top:2px">CUIT ${cuit} no figura en la lista de entidades sancionadas.</div>
+      </div>`;
+  }
+}
+
+function limpiarCruce() {
+  document.getElementById('cruce-result').innerHTML = '';
+}
+
+async function cargarAlertas() {
+  const data = await fetchJSON('/api/alertas');
+  if (!data) return;
+  document.getElementById('count-alertas').textContent = data.length + ' alertas';
+  const cont = document.getElementById('alertas-contenedor');
+  if (!data.length) {
+    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">Sin alertas activas — el cron diario las genera cuando detecta empresas sancionadas con contratos vigentes.</div>';
+    return;
+  }
+  cont.innerHTML = data.map(a => `
+    <div class="alerta-row">
+      <div style="min-width:80px">${nivelPill(a.nivel)}</div>
+      <div style="min-width:140px;font-weight:500;font-size:12px">${a.empresa}</div>
+      <div style="min-width:110px;font-size:11px;color:var(--text2)">${a.plataforma}</div>
+      <div style="font-size:11px;flex:1">${a.descripcion}</div>
+      <div style="font-size:10px;color:var(--text3);white-space:nowrap">${a.fecha_deteccion ? a.fecha_deteccion.slice(0,10) : ''}</div>
+    </div>`).join('');
+}
+
+function filtrarAlertas() {
+  cargarAlertas();
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'empresas' && !datosEmpresas.length) cargarEmpresas();
+  if (id === 'presencia') cargarPresencia();
+  if (id === 'alertas') cargarAlertas();
+}
+
+// Inicializar
+cargarResumen();
+cargarCasos();
+</script>
+</body>
+</html>
