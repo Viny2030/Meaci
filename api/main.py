@@ -10,17 +10,88 @@ import os
 from pathlib import Path
 
 from .models import (
-    get_db, crear_tablas,
+    get_db, crear_tablas, SessionLocal,
     Caso, Empresa, Resolucion, PresenciaAR, Alerta
 )
 
 
 # ── LIFESPAN (reemplaza on_event deprecated) ──────────────────────────────────
 
+def _run_cron():
+    """Corre el ciclo diario del MEACI — llamado por APScheduler."""
+    import logging
+    import json
+    log = logging.getLogger("meaci.cron")
+    log.info("[cron] Ciclo diario iniciado")
+
+    db = SessionLocal()
+    try:
+        # 1. Verificar presencia AR (log + preparación para Fase 2)
+        from .models import Empresa, Alerta, Resolucion
+        empresas_ar = db.query(Empresa).filter(
+            Empresa.presencia_argentina == True,
+            Empresa.cuits_ar != "[]",
+        ).all()
+        log.info(f"[cron] {len(empresas_ar)} empresas con CUIT AR verificadas")
+
+        # 2. Generar alertas para empresas sin alerta activa
+        nuevas = 0
+        for emp in db.query(Empresa).filter(Empresa.presencia_argentina == True).all():
+            existe = db.query(Alerta).filter(
+                Alerta.empresa_id == emp.id,
+                Alerta.plataforma == "contratos_v2",
+                Alerta.activa == True,
+            ).first()
+            if existe:
+                continue
+            casos = (
+                db.query(Caso)
+                .join(Resolucion)
+                .filter(Resolucion.empresa_id == emp.id)
+                .all()
+            )
+            if not casos:
+                continue
+            c = casos[0]
+            db.add(Alerta(
+                empresa_id=emp.id,
+                plataforma="contratos_v2",
+                tipo_alerta="sancionada_ocde",
+                nivel="alta" if (c.monto_total_usd or 0) > 500 else "media",
+                descripcion=(
+                    f"{emp.nombre_matriz} sancionada en caso {c.nombre_caso} "
+                    f"({c.anio_resolucion}) — USD {c.monto_total_usd}M. "
+                    f"Filiales AR: {emp.filiales_ar}"
+                ),
+                datos_extra=json.dumps({
+                    "caso_id": c.id,
+                    "cuits_ar": emp.cuits_ar,
+                    "paises": c.paises,
+                }),
+            ))
+            nuevas += 1
+
+        db.commit()
+        log.info(
+            f"[cron] Listo — alertas nuevas: {nuevas} | "
+            f"total activas: {db.query(Alerta).filter(Alerta.activa == True).count()}"
+        )
+    except Exception as e:
+        db.rollback()
+        logging.getLogger("meaci.cron").error(f"[cron] ERROR: {e}")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
+    import logging
+    from apscheduler.schedulers.background import BackgroundScheduler
+
+    # ── Startup ────────────────────────────────────────────────────────────────
     crear_tablas()
+
+    # Seed inicial si la DB está vacía
     db = next(get_db())
     try:
         if db.query(Caso).count() == 0:
@@ -30,8 +101,25 @@ async def lifespan(app: FastAPI):
             seed()
     finally:
         db.close()
+
+    # Scheduler diario a las 06:00 hora Argentina
+    scheduler = BackgroundScheduler(timezone="America/Argentina/Buenos_Aires")
+    scheduler.add_job(
+        _run_cron,
+        trigger="cron",
+        hour=6,
+        minute=0,
+        id="ciclo_diario",
+        replace_existing=True,
+    )
+    scheduler.start()
+    logging.getLogger("meaci").info("[scheduler] Cron diario activo — dispara a las 06:00 AR")
+
     yield
-    # Shutdown (nada por ahora)
+
+    # ── Shutdown ────────────────────────────────────────────────────────────────
+    scheduler.shutdown(wait=False)
+    logging.getLogger("meaci").info("[scheduler] Cron detenido")
 
 
 app = FastAPI(
@@ -293,6 +381,26 @@ def health(db: Session = Depends(get_db)):
         "casos": db.query(Caso).count(),
         "empresas": db.query(Empresa).count(),
     }
+
+
+# ── CRON MANUAL ───────────────────────────────────────────────────────────────
+
+@app.post("/api/cron", tags=["Admin"])
+def ejecutar_cron_manual(
+    token: str = Query(..., description="REFRESH_TOKEN del .env"),
+):
+    """
+    Dispara el ciclo diario manualmente sin esperar las 06:00.
+    Requiere el REFRESH_TOKEN configurado en las variables de entorno.
+    """
+    import os
+    if token != os.getenv("REFRESH_TOKEN", "dev"):
+        raise HTTPException(status_code=403, detail="Token inválido")
+    try:
+        _run_cron()
+        return {"status": "ok", "mensaje": "Ciclo diario ejecutado"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ── STATIC FILES (siempre al final — no interfiere con rutas /api) ────────────
 
