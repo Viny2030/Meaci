@@ -6,42 +6,33 @@
 <title>MEACI · Monitor de Empresas Argentinas en Casos Internacionales</title>
 <style>
   :root {
-    --bg: #ffffff;
-    --bg2: #f5f4ef;
-    --bg3: #eeede8;
-    --text: #1a1a19;
-    --text2: #5f5e5a;
-    --text3: #888780;
-    --border: rgba(0,0,0,0.1);
-    --border2: rgba(0,0,0,0.18);
-    --danger-bg: #fcebeb; --danger-text: #a32d2d; --danger-border: #f09595;
-    --warn-bg: #faeeda;   --warn-text: #854f0b;   --warn-border: #ef9f27;
-    --info-bg: #e6f1fb;   --info-text: #185fa5;   --info-border: #85b7eb;
-    --ok-bg: #eaf3de;     --ok-text: #3b6d11;     --ok-border: #97c459;
+    --bg:    #0a1628;
+    --bg2:   #0f2040;
+    --bg3:   #162952;
+    --bg4:   #1e3a6e;
+    --text:  #e8f0fe;
+    --text2: #93afd4;
+    --text3: #4e6a8e;
+    --border:  rgba(100,160,255,0.12);
+    --border2: rgba(100,160,255,0.25);
+    --danger-bg: #3d0f0f; --danger-text: #ff6b6b; --danger-border: #c0392b;
+    --warn-bg:   #3d1f00; --warn-text:   #ff9f43; --warn-border:   #e67e22;
+    --ok-bg:     #2d2800; --ok-text:     #f9ca24; --ok-border:     #f0c030;
+    --info-bg:   #0d2545; --info-text:   #74b9ff; --info-border:   #2980b9;
+    --green:     #00b894; --green-bg:    #003d30; --green-text:    #55efc4;
     --radius: 8px; --radius-lg: 12px;
     --mono: 'Courier New', monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1a1a19; --bg2: #242422; --bg3: #2e2e2b;
-      --text: #e8e7e1; --text2: #9c9a92; --text3: #5f5e5a;
-      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
-      --danger-bg: #501313; --danger-text: #f09595;
-      --warn-bg: #412402;   --warn-text: #fac775;
-      --info-bg: #042c53;   --info-text: #85b7eb;
-      --ok-bg: #173404;     --ok-text: #c0dd97;
-    }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
 
   /* NAV */
-  nav { border-bottom: 0.5px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 0; height: 48px; }
+  nav { border-bottom: 1px solid var(--bg3); padding: 0 24px; display: flex; align-items: center; gap: 0; height: 48px; background: var(--bg2); }
   .nav-brand { font-weight: 500; font-size: 14px; margin-right: 24px; white-space: nowrap; }
   .nav-brand span { color: var(--text2); font-weight: 400; }
   .nav-links { display: flex; gap: 2px; }
   .nav-links a { padding: 6px 12px; border-radius: var(--radius); font-size: 13px; color: var(--text2); text-decoration: none; cursor: pointer; border: none; background: none; }
-  .nav-links a:hover, .nav-links a.active { background: var(--bg2); color: var(--text); }
+  .nav-links a:hover, .nav-links a.active { background: var(--bg3); color: var(--text); border-bottom: 2px solid var(--info-text); }
   .nav-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
   .nav-right a { font-size: 12px; color: var(--text3); text-decoration: none; }
   .nav-right a:hover { color: var(--text2); }
@@ -59,6 +50,7 @@
   .kpi-danger .kpi-value { color: var(--danger-text); }
   .kpi-warn .kpi-value   { color: var(--warn-text); }
   .kpi-info .kpi-value   { color: var(--info-text); }
+  .kpi-green .kpi-value  { color: var(--green); }
 
   /* SECTION HEADER */
   .section-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -77,7 +69,7 @@
   /* TABLE */
   .table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-  thead th { font-size: 11px; font-weight: 500; color: var(--text2); text-align: left; padding: 8px 10px; border-bottom: 0.5px solid var(--border); background: var(--bg2); }
+  thead th { font-size: 11px; font-weight: 500; color: var(--text2); text-align: left; padding: 8px 10px; border-bottom: 0.5px solid var(--border); background: var(--bg3); }
   tbody td { padding: 8px 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: var(--bg2); cursor: pointer; }
@@ -90,18 +82,18 @@
   .p-baja   { background: var(--ok-bg);     color: var(--ok-text); }
   .p-info   { background: var(--info-bg);   color: var(--info-text); }
   .p-muted  { background: var(--bg3);       color: var(--text3); }
-  .badge-ar { background: var(--danger-bg); color: var(--danger-text); font-size: 10px; padding: 1px 6px; border-radius: 10px; }
+  .badge-ar { background: rgba(192,57,43,0.3); color: var(--danger-text); font-size: 10px; padding: 1px 6px; border-radius: 10px; border: 1px solid var(--danger-border); }
 
   /* CARDS GRID */
   .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; cursor: pointer; transition: border-color .15s; }
-  .card:hover { border-color: var(--border2); }
+  .card:hover { border-color: var(--info-border); background: var(--bg3); }
   .card-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
   .card-sub { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
   .card-pills { display: flex; gap: 4px; flex-wrap: wrap; }
 
   /* DETALLE PANEL */
-  .detalle { background: var(--bg2); border-radius: var(--radius-lg); padding: 16px; margin-top: 16px; }
+  .detalle { background: var(--bg3); border-radius: var(--radius-lg); padding: 16px; margin-top: 16px; border: 1px solid var(--border2); }
   .detalle-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
   .detalle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
   .detalle-row { font-size: 12px; }
@@ -114,7 +106,7 @@
   /* CRUCE WIDGET */
   .cruce-box { background: var(--bg2); border-radius: var(--radius-lg); padding: 16px; max-width: 520px; }
   .cruce-result { margin-top: 14px; padding: 12px; border-radius: var(--radius); font-size: 13px; }
-  .cruce-ok  { background: var(--ok-bg);     border-left: 2px solid var(--ok-border);     }
+  .cruce-ok  { background: var(--green-bg);  border-left: 2px solid var(--green);          }
   .cruce-mal { background: var(--danger-bg); border-left: 2px solid var(--danger-border); }
 
   /* ALERTAS */
@@ -123,10 +115,10 @@
   .alerta-row:hover { background: var(--bg2); cursor: pointer; }
 
   /* AVISO */
-  .aviso { background: var(--warn-bg); border-left: 2px solid var(--warn-border); padding: 10px 14px; font-size: 12px; color: var(--warn-text); margin-bottom: 16px; }
+  .aviso { background: rgba(255,159,67,0.08); border-left: 2px solid var(--warn-border); padding: 10px 14px; font-size: 12px; color: var(--warn-text); margin-bottom: 16px; }
 
   /* FOOTER */
-  footer { border-top: 0.5px solid var(--border); padding: 16px 24px; font-size: 11px; color: var(--text3); display: flex; gap: 16px; }
+  footer { border-top: 1px solid var(--bg3); padding: 16px 24px; font-size: 11px; color: var(--text3); display: flex; gap: 16px; background: var(--bg2); }
   footer a { color: var(--text3); text-decoration: none; }
   footer a:hover { color: var(--text2); }
 
@@ -139,6 +131,9 @@
     .cards-grid { grid-template-columns: 1fr; }
     .detalle-grid { grid-template-columns: 1fr; }
   }
+
+  .leg-link[data-browser="1"]::after { content:" ↗"; font-size:9px; opacity:0.6; }
+  .leg-link[data-browser="1"] { border-style: dashed; }
 </style>
 </head>
 <body>
@@ -151,6 +146,8 @@
     <a onclick="showPage('presencia')" id="nav-presencia">Presencia AR</a>
     <a onclick="showPage('cruce')" id="nav-cruce">Cruce CUIT</a>
     <a onclick="showPage('alertas')" id="nav-alertas">Alertas</a>
+    <a onclick="showPage('legislacion')" id="nav-legislacion">Legislación</a>
+    <a onclick="showPage('manual')" id="nav-manual">Manual</a>
   </div>
   <div class="nav-right">
     <a href="/docs" target="_blank">API docs</a>
@@ -176,7 +173,7 @@
       <div class="kpi-value" id="kpi-ar">—</div>
       <div class="kpi-sub">filiales · contratos · operaciones</div>
     </div>
-    <div class="kpi kpi-warn">
+    <div class="kpi kpi-green">
       <div class="kpi-label">Sanciones totales (USD 2024)</div>
       <div class="kpi-value" id="kpi-monto">—</div>
       <div class="kpi-sub">Argentina no cobró demand-side</div>
@@ -338,6 +335,590 @@
   </div>
   <div class="table-wrap" id="alertas-contenedor">
     <div class="loading">Cargando alertas...</div>
+  </div>
+</div>
+
+
+
+<!-- PAGE: LEGISLACION -->
+<div class="page" id="page-legislacion">
+<div class="section-hdr"><h2>Marco legal internacional antibribery</h2></div>
+
+<style>
+.leg-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:20px; }
+.leg-card { background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:18px; }
+.leg-card-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; }
+.leg-flag { font-size:22px; flex-shrink:0; }
+.leg-title { font-size:13px; font-weight:500; color:var(--text); margin-bottom:2px; }
+.leg-subtitle { font-size:11px; color:var(--text2); }
+.leg-badge { display:inline-block; font-size:10px; font-weight:500; padding:2px 8px; border-radius:10px; margin-bottom:10px; }
+.leg-b-int  { background:rgba(116,185,255,0.15); color:var(--info-text); }
+.leg-b-crim { background:rgba(255,107,107,0.15); color:var(--danger-text); }
+.leg-b-adm  { background:rgba(255,159,67,0.15);  color:var(--warn-text); }
+.leg-b-reg  { background:rgba(0,184,148,0.15);    color:var(--green); }
+.leg-body { font-size:12px; color:var(--text2); line-height:1.7; margin-bottom:12px; }
+.leg-items { list-style:none; padding:0; margin:0 0 12px; }
+.leg-items li { font-size:11px; color:var(--text2); padding:3px 0; border-bottom:0.5px solid var(--border); display:flex; align-items:flex-start; gap:6px; }
+.leg-items li:last-child { border-bottom:none; }
+.leg-items li::before { content:"›"; color:var(--info-text); flex-shrink:0; }
+.leg-link { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--info-text); text-decoration:none; padding:4px 10px; border:1px solid var(--border2); border-radius:6px; }
+.leg-link:hover { background:var(--bg3); }
+.leg-section-title { font-size:12px; font-weight:500; color:var(--text3); margin:20px 0 10px; padding-bottom:4px; border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:.06em; }
+.leg-mecanismos { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+.leg-mec { background:var(--bg3); border-radius:var(--radius); padding:12px; text-align:center; }
+.leg-mec-sigla { font-size:16px; font-weight:500; color:var(--info-text); margin-bottom:4px; font-family:var(--mono); }
+.leg-mec-name { font-size:10px; color:var(--text2); margin-bottom:4px; }
+.leg-mec-pais { font-size:10px; color:var(--text3); }
+</style>
+
+<!-- Mecanismos de resolución -->
+<div class="leg-section-title">Mecanismos de resolución no judicial (NTR) usados en los 31 casos OCDE</div>
+<div class="leg-mecanismos">
+  <div class="leg-mec"><div class="leg-mec-sigla">DPA</div><div class="leg-mec-name">Deferred Prosecution Agreement</div><div class="leg-mec-pais">USA · UK · Francia · NL</div></div>
+  <div class="leg-mec"><div class="leg-mec-sigla">NPA</div><div class="leg-mec-name">Non-Prosecution Agreement</div><div class="leg-mec-pais">USA · Singapur</div></div>
+  <div class="leg-mec"><div class="leg-mec-sigla">CJIP</div><div class="leg-mec-name">Convention Judiciaire d'Intérêt Public</div><div class="leg-mec-pais">Francia</div></div>
+  <div class="leg-mec"><div class="leg-mec-sigla">C-ADR</div><div class="leg-mec-name">Corporate Alternative Dispute Resolution</div><div class="leg-mec-pais">Sudáfrica</div></div>
+  <div class="leg-mec"><div class="leg-mec-sigla">SPO</div><div class="leg-mec-name">Summary Penalty Order</div><div class="leg-mec-pais">Suiza</div></div>
+  <div class="leg-mec"><div class="leg-mec-sigla">LA</div><div class="leg-mec-name">Leniency Agreement (Acordo de Leniência)</div><div class="leg-mec-pais">Brasil</div></div>
+  <div class="leg-mec"><div class="leg-mec-sigla">OWiG</div><div class="leg-mec-name">Ordnungswidrigkeitengesetz Fine</div><div class="leg-mec-pais">Alemania</div></div>
+  <div class="leg-mec"><div class="leg-mec-sigla">PA</div><div class="leg-mec-name">Plea Agreement / Guilty Plea</div><div class="leg-mec-pais">USA · UK · Suiza</div></div>
+</div>
+
+<!-- Grid principal -->
+<div class="leg-section-title">Instrumentos internacionales y legislación nacional</div>
+<div class="leg-grid">
+
+  <!-- OCDE Convención -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🌐</div>
+      <div><div class="leg-title">Convención OCDE Anti-Soborno</div><div class="leg-subtitle">Convention on Combating Bribery of Foreign Public Officials · 1997</div></div>
+    </div>
+    <span class="leg-badge leg-b-int">Internacional · 46 partes</span>
+    <div class="leg-body">Primer instrumento internacional vinculante que penaliza el soborno de funcionarios públicos extranjeros en transacciones comerciales internacionales. Base legal de los 31 casos MJR analizados en este monitor.</div>
+    <ul class="leg-items">
+      <li>Art. 1 — Obliga a criminalizar el soborno activo de funcionarios públicos extranjeros</li>
+      <li>Art. 3 — Sanciones efectivas, proporcionales y disuasivas incluyendo confiscación</li>
+      <li>Art. 4.3 — Consulta entre jurisdicciones para determinar la más apropiada</li>
+      <li>Art. 9 — Asistencia legal mutua (MLA) entre las partes</li>
+      <li>Recomendación 2021 — Introduce las resoluciones multijurisdiccionales (MJR)</li>
+    </ul>
+    <a class="leg-link" href="https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0293" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- FCPA -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇺🇸</div>
+      <div><div class="leg-title">Foreign Corrupt Practices Act (FCPA)</div><div class="leg-subtitle">USA · 1977 · enmendada 1998</div></div>
+    </div>
+    <span class="leg-badge leg-b-crim">Criminal + Civil · extraterritorial</span>
+    <div class="leg-body">Ley federal estadounidense que prohíbe a personas y entidades corromper a funcionarios públicos extranjeros. Aplicación extraterritorial amplia: abarca cualquier empresa que use el sistema financiero o postal de EE.UU.</div>
+    <ul class="leg-items">
+      <li>15 U.S.C. §§ 78dd-1, -2, -3 — Prohibiciones anti-soborno</li>
+      <li>15 U.S.C. § 78m — Books & Records (registros contables)</li>
+      <li>DOJ aplica la norma anti-soborno · SEC aplica books & records</li>
+      <li>USSG Chapter 8 — Guías de sentencia para personas jurídicas</li>
+      <li>Voluntary self-disclosure reduce penas hasta 50%</li>
+      <li>DPA y NPA como mecanismos principales de resolución</li>
+    </ul>
+    <a class="leg-link" href="https://www.justice.gov/criminal/fraud/fcpa" data-browser="1" target="_blank">DOJ FCPA Resource Guide →</a>
+  </div>
+
+  <!-- UK Bribery Act -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇬🇧</div>
+      <div><div class="leg-title">UK Bribery Act 2010</div><div class="leg-subtitle">Reino Unido · en vigor desde 2011</div></div>
+    </div>
+    <span class="leg-badge leg-b-crim">Criminal · amplia jurisdicción</span>
+    <div class="leg-body">Considerada la legislación anticorrupción más estricta del mundo. Crea el delito de "failure to prevent bribery" (Sección 7) — responsabilidad empresarial sin necesidad de probar intención directiva.</div>
+    <ul class="leg-items">
+      <li>Sección 1 — Soborno activo (ofrecer/prometer/dar ventaja)</li>
+      <li>Sección 2 — Soborno pasivo (solicitar/recibir ventaja)</li>
+      <li>Sección 6 — Soborno de funcionario público extranjero</li>
+      <li>Sección 7 — Falla corporativa en prevenir el soborno (strict liability)</li>
+      <li>Schedule 17, Crime and Courts Act 2013 — Autoriza los DPA</li>
+      <li>SFO Cooperation Guidance — descuentos por cooperación hasta 50%</li>
+    </ul>
+    <a class="leg-link" href="https://www.legislation.gov.uk/ukpga/2010/23/contents" target="_blank">Texto oficial →</a>
+    <a class="leg-link" href="https://www.sfo.gov.uk" data-browser="1" target="_blank" style="margin-top:6px">SFO Corporate Guidance →</a>
+  </div>
+
+  <!-- Sapin II Francia -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇫🇷</div>
+      <div><div class="leg-title">Loi Sapin II (Ley 2016-1691)</div><div class="leg-subtitle">Francia · diciembre 2016</div></div>
+    </div>
+    <span class="leg-badge leg-b-adm">Criminal + Compliance</span>
+    <div class="leg-body">Introduce el CJIP (Convention Judiciaire d'Intérêt Public) — análogo francés al DPA anglosajón. Crea la AFA (Agence Française Anticorruption) como supervisor de compliance.</div>
+    <ul class="leg-items">
+      <li>Art. 41-1-2 CPP — Regula el CJIP: suspende proceso penal ante pago de amende</li>
+      <li>Obliga a empresas +500 empleados a tener programas anticorrupción</li>
+      <li>AFA — audita y supervisa programas de compliance por 3 años post-CJIP</li>
+      <li>Principio "foi du palais" — confidencialidad de negociaciones pre-CJIP</li>
+      <li>Validación judicial obligatoria en audiencia pública</li>
+      <li>Descuentos hasta 50% por cooperación "exemplaire"</li>
+    </ul>
+    <a class="leg-link" href="https://www.legifrance.gouv.fr/loda/id/JORFTEXT000033558528" data-browser="1" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- Lei Anticorrupção Brasil -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇧🇷</div>
+      <div><div class="leg-title">Lei Anticorrupção — Lei 12.846/2013</div><div class="leg-subtitle">Brasil · "Lei da Empresa Limpa"</div></div>
+    </div>
+    <span class="leg-badge leg-b-adm">Administrativa · responsabilidad objetiva</span>
+    <div class="leg-body">Primera ley brasileña de responsabilidad corporativa por actos de corrupción. Responsabilidad objetiva — no requiere probar culpa de la empresa. Base legal para los 17 Leniency Agreements concluidos con USA.</div>
+    <ul class="leg-items">
+      <li>Art. 1 — Responsabilidad objetiva de personas jurídicas</li>
+      <li>Art. 16 — Acuerdo de Leniência: reduce multas, preserva contratos públicos</li>
+      <li>Decreto 11.129/2022 — Formaliza requisitos operativos del acuerdo</li>
+      <li>CGU — Controladoria-Geral da União: negocia y firma los acuerdos</li>
+      <li>AGU — Advocacia-Geral da União: co-firma el acuerdo</li>
+      <li>Multas: 0.1% a 20% del facturado; confiscación total de la ganancia ilícita</li>
+    </ul>
+    <a class="leg-link" href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12846.htm" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- UNCAC -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🌍</div>
+      <div><div class="leg-title">UNCAC — Convención ONU contra la Corrupción</div><div class="leg-subtitle">Naciones Unidas · 2003 · 189 estados parte</div></div>
+    </div>
+    <span class="leg-badge leg-b-int">Internacional · amplio alcance</span>
+    <div class="leg-body">Único instrumento anticorrupción global jurídicamente vinculante. Cubre prevención, criminalización, cooperación internacional y recuperación de activos. Argentina la ratificó en 2006 (Ley 26.097).</div>
+    <ul class="leg-items">
+      <li>Cap. II — Medidas preventivas: integridad pública, sector privado</li>
+      <li>Cap. III — Penalización: soborno, malversación, lavado de activos</li>
+      <li>Cap. IV — Cooperación internacional y asistencia legal mutua</li>
+      <li>Cap. V — Recuperación de activos: mecanismo innovador de repatriación</li>
+      <li>Art. 26 — Responsabilidad de personas jurídicas</li>
+      <li>Art. 46 — Asistencia judicial recíproca entre estados</li>
+    </ul>
+    <a class="leg-link" href="https://www.unodc.org/unodc/en/corruption/uncac.html" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- Swiss Criminal Code -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇨🇭</div>
+      <div><div class="leg-title">Swiss Criminal Code — Art. 102 + 322septies</div><div class="leg-subtitle">Suiza · Código Penal Federal</div></div>
+    </div>
+    <span class="leg-badge leg-b-crim">Criminal · responsabilidad corporativa</span>
+    <div class="leg-body">Suiza participa en 7 de los 31 casos MJR analizados. El Art. 102 establece responsabilidad corporativa por falla organizacional; el 322septies criminaliza el soborno a funcionarios extranjeros.</div>
+    <ul class="leg-items">
+      <li>Art. 102 SCC — Responsabilidad corporativa por fallos de supervisión interna</li>
+      <li>Art. 322septies SCC — Soborno activo y pasivo de funcionarios extranjeros</li>
+      <li>Art. 102 párr. 2 — Multa máxima CHF 5 millones para personas jurídicas</li>
+      <li>Summary Penalty Order (SPO) — emitido por la OAG, equivale a condena</li>
+      <li>Confiscación sin límite bajo Art. 70-72 SCC (supera ampliamente la multa)</li>
+      <li>Sin mecanismo DPA/NPA: resoluciones siempre consecutivas a la de USA</li>
+    </ul>
+    <a class="leg-link" href="https://www.fedlex.admin.ch/eli/cc/54/757_781_799/en" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- Dutch Criminal Code -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇳🇱</div>
+      <div><div class="leg-title">Dutch Criminal Code — Art. 74 (Out-of-Court Transaction)</div><div class="leg-subtitle">Países Bajos · Wetboek van Strafrecht</div></div>
+    </div>
+    <span class="leg-badge leg-b-adm">Transaccional · sin condena</span>
+    <div class="leg-body">El Art. 74 permite al fiscal evitar el proceso penal mediante un acuerdo transaccional con condiciones (pago, compliance, cooperación). Funcionalmente similar a un DPA pero sin supervisión judicial directa.</div>
+    <ul class="leg-items">
+      <li>Art. 74 WvSr — Transactie: acuerdo consensual fiscal-empresa sin ir a juicio</li>
+      <li>Openbaar Ministerie (OM) — único interlocutor, sin aprobación de juez</li>
+      <li>Casos VimpelCom (USD 795M), Telia (USD 965M), SBM Offshore</li>
+      <li>Telia case: Sweden sin NTR → Países Bajos cobró los USD 208.5M de Suecia</li>
+      <li>Art. 51 WvSr — Responsabilidad corporativa: empresa puede ser procesada</li>
+    </ul>
+    <a class="leg-link" href="https://wetten.overheid.nl/BWBR0001854" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- Singapore PCA -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇸🇬</div>
+      <div><div class="leg-title">Prevention of Corruption Act (PCA)</div><div class="leg-subtitle">Singapur · Cap. 241</div></div>
+    </div>
+    <span class="leg-badge leg-b-crim">Criminal + NPA-like</span>
+    <div class="leg-body">Base legal del sistema anticorrupción de Singapur. El CPIB (Corrupt Practices Investigation Bureau) y la AGC emiten "Conditional Warnings" — funcionalmente equivalentes a un NPA — como en los casos Goldman Sachs y Keppel O&M.</div>
+    <ul class="leg-items">
+      <li>Sección 5(b)(i) PCA — Soborno activo: hasta 5 años prisión / SGD 100.000 multa</li>
+      <li>Conditional Warning — AGC/CPIB: suspende proceso ante pago y compliance</li>
+      <li>Goldman Sachs Singapore (2020): SGD 3.9B confiscación + Conditional Warning</li>
+      <li>Keppel O&M (2022): USD 105.5M + Conditional Warning AGC</li>
+      <li>Primera DPA formal de Singapur: Seatrium (abril 2026, post-dataset)</li>
+    </ul>
+    <a class="leg-link" href="https://sso.agc.gov.sg/Act/PCA1960" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- South Africa POCA -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇿🇦</div>
+      <div><div class="leg-title">Prevention of Organised Crime Act (POCA) + C-ADR</div><div class="leg-subtitle">Sudáfrica · POCA 1998 · C-ADR 2024</div></div>
+    </div>
+    <span class="leg-badge leg-b-reg">NPA Policy · Guideline 2024</span>
+    <div class="leg-body">Sudáfrica participa en 3 MJRs (ABB 2022, SAP 2024, McKinsey 2024). El C-ADR (Corporate Alternative Dispute Resolution), introducido en 2024, permite al NPA resolver casos sin juicio con "punitive reparations" bajo Sección 64(e) POCA.</div>
+    <ul class="leg-items">
+      <li>POCA Sección 64(e) — Base legal para acuerdos de reparación punitiva</li>
+      <li>C-ADR (Part 51 NPA Directive, feb 2024) — NTR formal para empresas</li>
+      <li>Preserva persecución individual a pesar de la resolución corporativa</li>
+      <li>NPA evaluá recursos disponibles y extensión del juicio (interés público)</li>
+      <li>ABB case: ZAR 1.56B restitución a Eskom vía SIU; SAP: restitución a Transnet</li>
+      <li>Eurojust puede financiar JITs para países con recursos limitados</li>
+    </ul>
+    <a class="leg-link" href="https://www.gov.za/documents/prevention-organised-crime-act" target="_blank">POCA texto →</a>
+    <a class="leg-link" href="https://www.npa.gov.za" data-browser="1" target="_blank" style="margin-top:6px">NPA / C-ADR →</a>
+  </div>
+
+  <!-- Germany OWiG -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇩🇪</div>
+      <div><div class="leg-title">Ordnungswidrigkeitengesetz (OWiG)</div><div class="leg-subtitle">Alemania · Ley de Infracciones Administrativas</div></div>
+    </div>
+    <span class="leg-badge leg-b-adm">Administrativa · multa regulatoria</span>
+    <div class="leg-body">Alemania no tiene responsabilidad penal corporativa directa. El OWiG permite multas regulatorias contra empresas por falla de supervisión. La Munich Public Prosecutor impuso EUR 395M a Siemens AG en 2008 bajo este marco.</div>
+    <ul class="leg-items">
+      <li>§ 30 OWiG — Multa a persona jurídica por delito de representante</li>
+      <li>§ 130 OWiG — Multa por falla de supervisión organizacional</li>
+      <li>Sin DPA/NPA formal — resoluciones negociadas de facto con fiscalía</li>
+      <li>Siemens (2008): EUR 395M multa OWiG + USD 800M pena criminal DOJ</li>
+      <li>Proyecto VerSanG (Verbandssanktionengesetz) — ley corporativa penal pendiente</li>
+    </ul>
+    <a class="leg-link" href="https://www.gesetze-im-internet.de/owig_1968/" data-browser="1" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- Argentina -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇦🇷</div>
+      <div><div class="leg-title">Ley 27.401 — Responsabilidad Penal Empresaria</div><div class="leg-subtitle">Argentina · noviembre 2017 · en vigor 2018</div></div>
+    </div>
+    <span class="leg-badge leg-b-crim">Criminal · en desarrollo</span>
+    <div class="leg-body">Primera ley argentina de responsabilidad penal corporativa por corrupción. Introduce el acuerdo de colaboración eficaz — análogo al DPA/NPA. Argentina aún no ha participado como país enforcer en ningún MJR, limitando su capacidad de recupero.</div>
+    <ul class="leg-items">
+      <li>Art. 2 — Responsabilidad penal de personas jurídicas privadas</li>
+      <li>Art. 18 — Acuerdo de colaboración eficaz: suspende proceso ante cooperación</li>
+      <li>Art. 23 — Exención de pena si hay programa de integridad efectivo</li>
+      <li>OA (Oficina Anticorrupción) — supervisión de programas de compliance</li>
+      <li>UIF — Unidad de Información Financiera: seguimiento de flujos sospechosos</li>
+      <li>Sin participación en MJRs al 2026: USD 12.600M estimados no recuperados</li>
+    </ul>
+    <a class="leg-link" href="https://www.argentina.gob.ar/normativa/nacional/ley-27401-304436" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- CICC -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🌎</div>
+      <div><div class="leg-title">CICC — Convención Interamericana contra la Corrupción</div><div class="leg-subtitle">OEA · 1996 · 35 estados parte</div></div>
+    </div>
+    <span class="leg-badge leg-b-int">Internacional regional · OEA</span>
+    <div class="leg-body">Primer instrumento internacional anticorrupción del mundo. Precede a la Convención OCDE. Argentina la ratificó en 1997 (Ley 24.759). MESICIC supervisa su implementación con revisiones por pares.</div>
+    <ul class="leg-items">
+      <li>Art. VI — Actos de corrupción que los estados deben tipificar</li>
+      <li>Art. XIV — Asistencia y cooperación entre estados parte</li>
+      <li>Art. XV — Medidas sobre bienes producto de la corrupción</li>
+      <li>MESICIC — Mecanismo de seguimiento de la CICC (revisiones por rondas)</li>
+      <li>Argentina revisada en 5 rondas: avances en DDJJ y declaraciones juradas</li>
+    </ul>
+    <a class="leg-link" href="https://www.oas.org/es/sla/ddi/inter_american_treaties_B-58.asp" data-browser="1" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- Hong Kong -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🇭🇰</div>
+      <div><div class="leg-title">Prevention of Bribery Ordinance (POBO)</div><div class="leg-subtitle">Hong Kong (China) · Cap. 201</div></div>
+    </div>
+    <span class="leg-badge leg-b-adm">Administrativa · SFC</span>
+    <div class="leg-body">Hong Kong participa en 1 MJR (Goldman Sachs 2020) como jurisdicción no-Parte de la Convención OCDE. La SFC (Securities and Futures Commission) impuso una Disciplinary Action y multa de HKD 350M a Goldman Sachs Asia LLC.</div>
+    <ul class="leg-items">
+      <li>POBO Sección 9 — Soborno en el sector privado</li>
+      <li>Securities and Futures Ordinance — SFC puede imponer sanciones disciplinarias</li>
+      <li>Goldman Sachs Asia (2020): HKD 350M (USD ~45M) disciplinary action SFC</li>
+      <li>ICAC (Independent Commission Against Corruption) — investigación y enforcement</li>
+    </ul>
+    <a class="leg-link" href="https://www.elegislation.gov.hk/hk/cap201" target="_blank">Texto oficial →</a>
+  </div>
+
+  <!-- FATF / GAFI -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">💰</div>
+      <div><div class="leg-title">FATF / GAFI — Recomendaciones sobre Lavado de Activos</div><div class="leg-subtitle">Financial Action Task Force · 40 recomendaciones</div></div>
+    </div>
+    <span class="leg-badge leg-b-int">Internacional · soft law</span>
+    <div class="leg-body">Las Recomendaciones FATF/GAFI son el estándar global contra el lavado de activos. Rec. 3 y 6 son directamente relevantes para los MJRs: criminalizan el lavado de activos producto de corrupción y el financiamiento a personas políticamente expuestas (PEPs).</div>
+    <ul class="leg-items">
+      <li>Rec. 3 — Criminalización del lavado de activos producto de corrupción</li>
+      <li>Rec. 6 — Medidas contra PEPs (Politically Exposed Persons)</li>
+      <li>Rec. 24/25 — Transparencia de beneficiarios finales de empresas y trusts</li>
+      <li>Rec. 36-40 — Cooperación internacional y asistencia legal mutua</li>
+      <li>Argentina en lista gris FATF 2023-2024: controles reforzados</li>
+    </ul>
+    <a class="leg-link" href="https://www.fatf-gafi.org/content/fatf-gafi/en/topics/fatf-recommendations.html" target="_blank">Recomendaciones →</a>
+  </div>
+
+  <!-- Wolfsberg -->
+  <div class="leg-card">
+    <div class="leg-card-header">
+      <div class="leg-flag">🏦</div>
+      <div><div class="leg-title">Principios Wolfsberg — Anti-Bribery & Corruption</div><div class="leg-subtitle">Wolfsberg Group · 2017 actualizado</div></div>
+    </div>
+    <span class="leg-badge leg-b-reg">Sector privado · soft law</span>
+    <div class="leg-body">Los 12 grandes bancos internacionales del Wolfsberg Group establecen estándares de compliance para el sector financiero. Directamente relevante para casos como Goldman Sachs, Credit Suisse y Société Générale en este monitor.</div>
+    <ul class="leg-items">
+      <li>Principio 1 — Evaluación de riesgo de soborno y corrupción</li>
+      <li>Principio 3 — Due diligence de clientes PEP y terceros de alto riesgo</li>
+      <li>Principio 7 — Monitoreo de transacciones y red flags de corrupción</li>
+      <li>Principio 10 — Reporte y escalamiento interno de sospechas</li>
+      <li>Credit Suisse (2021): violación de controles ABC en múltiples jurisdicciones</li>
+    </ul>
+    <a class="leg-link" href="https://www.wolfsberg-principles.com/" target="_blank">Principios →</a>
+  </div>
+
+</div>
+</div>
+
+<!-- PAGE: MANUAL -->
+<div class="page" id="page-manual">
+<div class="section-hdr"><h2>Manual de uso</h2></div>
+
+<style>
+.man-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+.man-card { background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:18px; }
+.man-num { width:28px; height:28px; border-radius:50%; background:var(--bg4); color:var(--info-text); font-size:13px; font-weight:500; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.man-title { font-size:13px; font-weight:500; color:var(--text); margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.man-body { font-size:12px; color:var(--text2); line-height:1.7; margin-bottom:10px; }
+.man-steps { list-style:none; padding:0; margin:0; }
+.man-steps li { font-size:11px; color:var(--text2); padding:4px 0; border-bottom:0.5px solid var(--border); display:flex; gap:8px; }
+.man-steps li:last-child { border-bottom:none; }
+.man-steps li span { color:var(--info-text); font-weight:500; flex-shrink:0; min-width:16px; }
+.man-code { font-family:var(--mono); font-size:11px; background:var(--bg3); padding:6px 10px; border-radius:var(--radius); color:var(--green); margin:8px 0; display:block; }
+.man-tip { background:rgba(116,185,255,0.08); border-left:2px solid var(--info-border); padding:8px 12px; font-size:11px; color:var(--text2); border-radius:0; margin-top:10px; }
+</style>
+
+<div class="man-grid">
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">1</div>Casos MJR — tabla principal</div>
+    <div class="man-body">Lista los 31 casos de resoluciones multijurisdiccionales documentados por la OCDE entre 2008 y marzo 2026. Cada fila es un caso con su empresa, año, mecanismo de resolución y presencia en Argentina.</div>
+    <ul class="man-steps">
+      <li><span>›</span>Filtrar por país para ver casos donde participó USA, UK, Francia, Brasil o Suiza</li>
+      <li><span>›</span>Filtrar "Con presencia AR" para ver las 15 empresas con filiales en Argentina</li>
+      <li><span>›</span>Clic en cualquier fila → abre panel de detalle con todas las resoluciones y montos</li>
+      <li><span>›</span>Cada resolución tiene link directo al documento oficial (DOJ press release, SFO DPA, etc.)</li>
+      <li><span>›</span>Columna "Alerta AR" indica riesgo: rojo (&gt;USD 500M) · naranja (resto)</li>
+    </ul>
+    <div class="man-tip">Los montos están en USD constantes 2024 para comparabilidad histórica.</div>
+  </div>
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">2</div>Empresas — perfil por entidad</div>
+    <div class="man-body">Vista de cards por empresa sancionada. Permite filtrar por sector y presencia en Argentina. El badge "CUIT conocido" indica que el cruce automático con COMPR.AR está habilitado para esa empresa.</div>
+    <ul class="man-steps">
+      <li><span>›</span>Filtrar "Con presencia en Argentina" → 15 empresas con filiales registradas</li>
+      <li><span>›</span>Badge "CUIT conocido" → Siemens, ABB, SAP (3 empresas con CUIT verificado)</li>
+      <li><span>›</span>Clic en una card → va a la sección Cruce CUIT para verificar contratos</li>
+      <li><span>›</span>Buscar por nombre o sector (ej: "banca", "petroquímica", "aeronáutica")</li>
+    </ul>
+    <div class="man-tip">La tabla de CUITs se amplía a medida que se verifican filiales en AFIP.</div>
+  </div>
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">3</div>Presencia AR — filiales en Argentina</div>
+    <div class="man-body">Detalle de las 15 empresas sancionadas con presencia confirmada en Argentina. Muestra razón social local, CUIT si está disponible, y sector. Es la base para el cruce con contratos del Estado.</div>
+    <ul class="man-steps">
+      <li><span>›</span>Presencia verificada vía AFIP, COMPR.AR o datos públicos</li>
+      <li><span>›</span>Columna CUIT: monospace naranja = CUIT verificado; "—" = pendiente</li>
+      <li><span>›</span>Todas las empresas de esta tabla tienen alerta activa en Contratos v2</li>
+      <li><span>›</span>La verificación se actualiza con el cron diario a las 06:00 AR</li>
+    </ul>
+    <div class="man-tip">Para agregar un CUIT nuevo: editá <code>matcher/fuzzy_match.py</code> → dict CUITS_CONOCIDOS.</div>
+  </div>
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">4</div>Cruce CUIT — verificación en tiempo real</div>
+    <div class="man-body">Ingresá cualquier CUIT de proveedor del Estado para verificar si pertenece a una empresa sancionada internacionalmente. Responde en &lt;10ms. Este es el endpoint que consumen los otros 8 monitores.</div>
+    <ul class="man-steps">
+      <li><span>›</span>Ingresá el CUIT con o sin guiones: <code style="font-family:var(--mono);font-size:10px">30-54667581-3</code> o <code style="font-family:var(--mono);font-size:10px">30546675813</code></li>
+      <li><span>›</span>Resultado verde → sin antecedentes OCDE</li>
+      <li><span>›</span>Resultado rojo → sancionada, muestra caso, año y monto total</li>
+      <li><span>›</span>Ejemplos para probar: Siemens <code style="font-family:var(--mono);font-size:10px">30-54667581-3</code> · SAP <code style="font-family:var(--mono);font-size:10px">30-69142665-7</code> · ABB <code style="font-family:var(--mono);font-size:10px">30-57655868-3</code></li>
+    </ul>
+    <code class="man-code">GET /api/cruce-compr?cuit=30-54667581-3</code>
+    <div class="man-tip">Los otros monitores llaman este endpoint para inyectar el flag "sancionada_ocde" en sus tablas de proveedores.</div>
+  </div>
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">5</div>Alertas — monitoreo activo</div>
+    <div class="man-body">Lista las alertas generadas automáticamente por el cron diario. Cada alerta indica que una empresa sancionada internacionalmente tiene presencia activa en Argentina. Se pueden filtrar por nivel y plataforma destino.</div>
+    <ul class="man-steps">
+      <li><span>›</span>Alerta roja → empresa con sanción &gt;USD 500M (Siemens, Airbus, Odebrecht...)</li>
+      <li><span>›</span>Alerta naranja → empresa con sanción &lt;USD 500M</li>
+      <li><span>›</span>Plataforma indica qué monitor debe mostrar la alerta (contratos_v2, iri, ejecutivo)</li>
+      <li><span>›</span>El cron regenera alertas diariamente a las 06:00 hora Argentina</li>
+      <li><span>›</span>Para forzar actualización manual: <code style="font-family:var(--mono);font-size:10px">POST /api/cron?token=dev</code></li>
+    </ul>
+    <div class="man-tip">Las alertas amarillas (baja) están reservadas para expansión futura con más CUITs verificados.</div>
+  </div>
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">6</div>API — integración con otras plataformas</div>
+    <div class="man-body">El MEACI expone una API REST que los 8 monitores existentes pueden consumir para inyectar datos internacionales sin modificar su arquitectura. La documentación completa está en <code style="font-family:var(--mono);font-size:11px">/docs</code> (Swagger).</div>
+    <ul class="man-steps">
+      <li><span>›</span><code style="font-family:var(--mono);font-size:10px">GET /api/resumen</code> → KPIs globales</li>
+      <li><span>›</span><code style="font-family:var(--mono);font-size:10px">GET /api/casos?presencia_ar=true</code> → solo empresas con filiales AR</li>
+      <li><span>›</span><code style="font-family:var(--mono);font-size:10px">GET /api/cruce-compr?cuit=XX</code> → flag OCDE por CUIT</li>
+      <li><span>›</span><code style="font-family:var(--mono);font-size:10px">GET /api/alertas?plataforma=contratos_v2</code> → alertas filtradas</li>
+      <li><span>›</span><code style="font-family:var(--mono);font-size:10px">POST /api/cron?token=REFRESH_TOKEN</code> → forzar ciclo diario</li>
+    </ul>
+    <div class="man-tip">En producción (Railway) reemplazá localhost:8000 por la URL del servicio. Todos los endpoints son GET públicos salvo /api/cron.</div>
+  </div>
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">7</div>Cron diario — ciclo automático</div>
+    <div class="man-body">El scheduler interno corre todos los días a las 06:00 hora Argentina. Verifica presencia en COMPR.AR para empresas con CUIT conocido, genera nuevas alertas y registra el resumen en logs.</div>
+    <ul class="man-steps">
+      <li><span>›</span>Job 1 — Verifica CUITs contra COMPR.AR (fase 1: log · fase 2: escribe DB)</li>
+      <li><span>›</span>Job 2 — Genera alertas para empresas sin alerta activa del mismo tipo</li>
+      <li><span>›</span>Job 3 — Loguea resumen: casos / empresas / alertas activas</li>
+      <li><span>›</span>Se ejecuta como BackgroundScheduler en el mismo proceso que FastAPI</li>
+      <li><span>›</span>Railway reinicia el servicio en cada deploy → cron arranca automáticamente</li>
+    </ul>
+    <code class="man-code">POST /api/cron?token=dev  →  forzar ahora</code>
+    <div class="man-tip">Para modo daemon local descomentar scheduler.start() al final de cron.py.</div>
+  </div>
+
+  <div class="man-card">
+    <div class="man-title"><div class="man-num">8</div>Metodología y fuentes</div>
+    <div class="man-body">Los datos base provienen del informe OCDE 2026 "Sanctioning foreign bribery through multijurisdictional resolutions". Los scrapers del DOJ, SFO y PNF agregan casos nuevos incrementalmente.</div>
+    <ul class="man-steps">
+      <li><span>›</span>Seed estático: 31 casos OCDE · 73 resoluciones · cargado en startup</li>
+      <li><span>›</span>Scraper DOJ: RSS + HTML press releases FCPA (diario)</li>
+      <li><span>›</span>Scraper SFO: DPA documents sfo.gov.uk (semanal)</li>
+      <li><span>›</span>Scraper PNF: CJIPs tribunal-de-paris.justice.fr (semanal)</li>
+      <li><span>›</span>Matcher: CUIT exacto primero · RapidFuzz token_sort_ratio umbral 80</li>
+      <li><span>›</span>Montos normalizados a USD constantes 2024 para comparabilidad</li>
+    </ul>
+    <div class="man-tip">Referencia académica: Monteverde, V.H. (2021). Journal of Financial Crime, Vol. 28 No. 2, pp. 580-592. DOI: 10.1108/JFC-03-2020-0054</div>
+  </div>
+
+</div>
+</div>
+
+<!-- AUTOR Y DONACIONES -->
+<div style="max-width:1100px;margin:0 auto;padding:32px 24px 0;">
+
+  <!-- Aviso experimental -->
+  <div style="background:rgba(255,159,67,0.08);border:1px solid rgba(255,159,67,0.25);border-radius:var(--radius);padding:12px 16px;margin-bottom:28px;font-size:12px;color:var(--warn-text);line-height:1.7;">
+    <strong>Nota:</strong> Esta herramienta es de carácter <strong>experimental y académico</strong>. Los datos provienen de fuentes públicas oficiales. Los resultados son <strong>indicadores algorítmicos de riesgo</strong> — no implican juicio de valor, acusación ni determinación de responsabilidad sobre ninguna empresa, organismo o persona. El objetivo es promover la <strong>transparencia y el debate informado</strong>.
+  </div>
+
+  <!-- Bloque autor -->
+  <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px 28px;display:flex;gap:24px;align-items:flex-start;margin-bottom:28px;">
+    <img src="https://raw.githubusercontent.com/Viny2030/Mapa_Transparencia/main/foto.jpg"
+         alt="Ph.D. Vicente Humberto Monteverde"
+         style="width:80px;height:80px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border2);"
+         onerror="this.style.display='none'">
+    <div>
+      <div style="font-size:17px;font-weight:500;color:var(--text);margin-bottom:6px;">Ph.D. Vicente Humberto Monteverde</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">
+        Investigador en economía política y fenómenos de corrupción. Doctor en Ciencias Económicas.
+        Autor de la teoría de <em style="color:var(--info-text);">Transferencia Regresiva de Ingresos</em>
+        y desarrollador del algoritmo XAI aplicado al análisis de contrataciones públicas.<br>
+        Publicaciones en <em>Journal of Financial Crime</em> (Emerald Publishing).
+        Asesor en transparencia y auditoría algorítmica del gasto público.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="mailto:vhmonte@retina.ar" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;color:var(--text2);text-decoration:none;background:var(--bg2);">
+          ✉ vhmonte@retina.ar
+        </a>
+        <a href="mailto:viny01958@gmail.com" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;color:var(--text2);text-decoration:none;background:var(--bg2);">
+          ✉ viny01958@gmail.com
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Donaciones -->
+  <div style="text-align:center;margin-bottom:16px;">
+    <div style="font-size:16px;font-weight:500;color:var(--text);">🧡 Apoyar este proyecto — Donaciones voluntarias</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:4px;">Si este proyecto te resulta útil, podés apoyarlo con una donación voluntaria.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px;">
+
+    <!-- ARS -->
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:20px;">
+      <div style="font-size:11px;font-weight:500;color:var(--info-text);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+        <span style="background:rgba(116,185,255,0.15);padding:2px 8px;border-radius:4px;">AR</span>
+        Argentina · Pesos (ARS)
+      </div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">TIPO</td></tr>
+        <tr><td style="color:var(--text);padding-bottom:10px;">Caja de Ahorro</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">CBU</td></tr>
+        <tr><td style="color:var(--info-text);padding-bottom:10px;font-family:var(--mono);">0140005203400552652310</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">ALIAS</td></tr>
+        <tr><td style="color:var(--info-text);padding-bottom:10px;font-family:var(--mono);">ALGORIT.MONTE.PESOS</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">TITULAR</td></tr>
+        <tr><td style="color:var(--text);padding-bottom:10px;">Vicente Humberto Monteverde</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">CUIL/CUIT</td></tr>
+        <tr><td style="color:var(--text);">20-12034411-1</td></tr>
+      </table>
+    </div>
+
+    <!-- USD -->
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:20px;">
+      <div style="font-size:11px;font-weight:500;color:var(--green);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+        <span style="background:rgba(0,184,148,0.15);padding:2px 8px;border-radius:4px;">AR</span>
+        Argentina · Dólares (USD)
+      </div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">TIPO</td></tr>
+        <tr><td style="color:var(--text);padding-bottom:10px;">Caja de Ahorro Dólares</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">CBU</td></tr>
+        <tr><td style="color:var(--green);padding-bottom:10px;font-family:var(--mono);">0140005204400550329709</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">ALIAS</td></tr>
+        <tr><td style="color:var(--green);padding-bottom:10px;font-family:var(--mono);">ALGO.MONTE.DOLARES</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">TITULAR</td></tr>
+        <tr><td style="color:var(--text);padding-bottom:10px;">Vicente Humberto Monteverde</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">CUIL/CUIT</td></tr>
+        <tr><td style="color:var(--text);">20-12034411-1</td></tr>
+      </table>
+    </div>
+
+    <!-- Wire -->
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:20px;">
+      <div style="font-size:11px;font-weight:500;color:var(--warn-text);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+        <span style="background:rgba(255,159,67,0.15);padding:2px 8px;border-radius:4px;">🌐</span>
+        Desde el Exterior (USD Wire)
+      </div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">BANCO</td></tr>
+        <tr><td style="color:var(--text);padding-bottom:10px;">Banco Santander Rio</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">BENEFICIARIO</td></tr>
+        <tr><td style="color:var(--text);padding-bottom:10px;">Vicente Humberto Monteverde</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">DIRECCIÓN</td></tr>
+        <tr><td style="color:var(--text);padding-bottom:10px;">Av. Directorio 3024 PB DTO 04</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">CUENTA USD</td></tr>
+        <tr><td style="color:var(--warn-text);padding-bottom:10px;font-family:var(--mono);">005200183500</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">SWIFT / BIC</td></tr>
+        <tr><td style="color:var(--warn-text);padding-bottom:10px;font-family:var(--mono);">BSCHUYMM</td></tr>
+        <tr><td style="color:var(--text3);padding:4px 0;font-size:10px;letter-spacing:.05em;">CUIT</td></tr>
+        <tr><td style="color:var(--text);">20-12034411-1</td></tr>
+      </table>
+    </div>
+
   </div>
 </div>
 
@@ -619,11 +1200,14 @@ function filtrarAlertas() {
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  document.getElementById('nav-' + id).classList.add('active');
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  const nav = document.getElementById('nav-' + id);
+  if (nav) nav.classList.add('active');
   if (id === 'empresas' && !datosEmpresas.length) cargarEmpresas();
   if (id === 'presencia') cargarPresencia();
   if (id === 'alertas') cargarAlertas();
+  window.scrollTo(0, 0);
 }
 
 // Inicializar
