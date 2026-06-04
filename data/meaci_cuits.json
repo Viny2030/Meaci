@@ -1,0 +1,162 @@
+{
+  "generado": "2026-06-04T12:26:31.005342+00:00",
+  "total_cuits": 22,
+  "cuits": [
+    "20185806864",
+    "20200108664",
+    "20244989390",
+    "23206080469",
+    "30500662704",
+    "30546675813",
+    "30576558683",
+    "30680746032",
+    "30684949171",
+    "30685324085",
+    "30691426657",
+    "30691653551",
+    "30707340023",
+    "30708018599",
+    "30708064040",
+    "30708817331",
+    "30709794099",
+    "30710255881",
+    "30710408502",
+    "30711732557",
+    "30712314156",
+    "30715339176"
+  ],
+  "detalle": [
+    {
+      "cuit": "30680746032",
+      "nombre": "8129",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "cuit": "20200108664",
+      "nombre": "26402",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "cuit": "23206080469",
+      "nombre": "26407",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "cuit": "20185806864",
+      "nombre": "26408",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "cuit": "30715339176",
+      "nombre": "26465",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "cuit": "30712314156",
+      "nombre": "26469",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "cuit": "20244989390",
+      "nombre": "30423",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "cuit": "30546675813",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30576558683",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30708817331",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30691426657",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30710408502",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30709794099",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30710255881",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30708064040",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30711732557",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30691653551",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30684949171",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30500662704",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30707340023",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30708018599",
+      "nombre": "",
+      "fuente": "extra-local"
+    },
+    {
+      "cuit": "30685324085",
+      "nombre": "",
+      "fuente": "extra-local"
+    }
+  ],
+  "sin_cuit_para_revision": [
+    {
+      "nombre": "589",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "nombre": "4107",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "nombre": "26410",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "nombre": "26411",
+      "fuente": "OFAC-SDN"
+    },
+    {
+      "nombre": "26412",
+      "fuente": "OFAC-SDN"
+    }
+  ]
+}
