@@ -403,6 +403,33 @@ def ejecutar_cron_manual(
         raise HTTPException(status_code=500, detail=str(e))
 
 # ── STATIC FILES (siempre al final — no interfiere con rutas /api) ────────────
+# ── CRUCE BULK (para jefatura_gabinete y otros portales) ─────────────────────
 
+@app.get("/api/cruce-cuits-bulk", tags=["Cruces"])
+def cruce_cuits_bulk(
+    cuits: str = Query(..., description="CUITs separados por coma"),
+    db: Session = Depends(get_db),
+):
+    """Verifica lista de CUITs contra base MEACI (OCDE)."""
+    lista = [c.strip().replace("-", "").replace(".", "") for c in cuits.split(",") if c.strip()]
+    alertas = {}
+    for cuit in lista:
+        empresa = db.query(Empresa).filter(Empresa.cuits_ar.ilike(f"%{cuit}%")).first()
+        if empresa:
+            alertas[cuit] = {
+                "sancionada": True,
+                "empresa": empresa.nombre_matriz,
+                "pais": empresa.pais_sede,
+            }
+    return {"alertas": alertas, "total_alertas": len(alertas), "total_consultados": len(lista), "fuente": "MEACI-OCDE"}
+
+
+@app.get("/api/meaci-stats", tags=["Cruces"])
+def meaci_stats(db: Session = Depends(get_db)):
+    return {
+        "total_empresas_sancionadas": db.query(Empresa).count(),
+        "con_presencia_argentina": db.query(Empresa).filter(Empresa.presencia_argentina == True).count(),
+        "fuente": "MEACI-OCDE",
+    }
 if frontend_path.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
