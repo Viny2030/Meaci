@@ -119,6 +119,31 @@ def _run_cron():
             f"[cron] Listo — alertas nuevas: {nuevas} | "
             f"total activas: {db.query(Alerta).filter(Alerta.activa == True).count()}"
         )
+
+        # 3. Verificar casos nuevos en el DOJ (solo detecta y loguea — no inserta
+        #    datos automáticamente, para no repetir el problema de CUITs/casos
+        #    inventados sin verificación humana. Revisar el log y cargar a mano
+        #    en data/ocde_seed.py los casos que correspondan.)
+        try:
+            from scraper.doj import obtener_casos_recientes
+            urls_conocidas = {
+                r[0] for r in db.query(Resolucion.url_fuente).filter(
+                    Resolucion.url_fuente.isnot(None)
+                ).all()
+            }
+            casos_doj = obtener_casos_recientes(limite=30)
+            nuevos_doj = [c for c in casos_doj if c["url"] not in urls_conocidas]
+            if nuevos_doj:
+                log.warning(
+                    f"[cron] {len(nuevos_doj)} casos DOJ nuevos, no están en la base — "
+                    f"revisar y cargar manualmente si corresponde:"
+                )
+                for c in nuevos_doj:
+                    log.warning(f"  → [{c['fecha']}] {c['titulo']} — {c['url']}")
+            else:
+                log.info("[cron] Sin casos DOJ nuevos respecto a la base actual")
+        except Exception as e:
+            log.error(f"[cron] Error al verificar casos DOJ: {e}")
     except Exception as e:
         db.rollback()
         logging.getLogger("meaci.cron").error(f"[cron] ERROR: {e}")
