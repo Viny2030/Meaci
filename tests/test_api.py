@@ -87,14 +87,14 @@ def test_empresas_presencia_ar():
 
 
 def test_empresa_por_cuit_siemens():
-    r = client.get("/api/empresas/cuit/30-54667581-3")
+    r = client.get("/api/empresas/cuit/33-71657893-9")
     assert r.status_code == 200
     data = r.json()
     assert data["nombre_matriz"] == "Siemens AG"
 
 
 def test_empresa_por_cuit_sap():
-    r = client.get("/api/empresas/cuit/30-69142665-7")
+    r = client.get("/api/empresas/cuit/30-68516370-1")
     assert r.status_code == 200
     assert r.json()["nombre_matriz"] == "SAP SE"
 
@@ -107,7 +107,7 @@ def test_empresa_cuit_inexistente():
 # ── Cruce COMPR.AR ────────────────────────────────────────────────────────────
 
 def test_cruce_cuit_sancionado():
-    r = client.get("/api/cruce-compr?cuit=30-54667581-3")
+    r = client.get("/api/cruce-compr?cuit=33-71657893-9")
     assert r.status_code == 200
     data = r.json()
     assert data["sancionada_ocde"] is True
@@ -124,7 +124,7 @@ def test_cruce_cuit_libre():
 
 
 def test_cruce_abb():
-    r = client.get("/api/cruce-compr?cuit=30-57655868-3")
+    r = client.get("/api/cruce-compr?cuit=30-50394816-4")
     assert r.status_code == 200
     data = r.json()
     assert data["sancionada_ocde"] is True
