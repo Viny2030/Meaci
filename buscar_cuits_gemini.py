@@ -1,13 +1,34 @@
 """
 buscar_cuits_gemini.py
 ======================
-Detecta empresas MEACI sin CUIT y consulta Gemini para obtenerlos.
-Actualiza la DB local automáticamente.
+⚠️  DESHABILITADO POR DEFECTO — LEER ANTES DE USAR ⚠️
 
-Uso:
-    python buscar_cuits_gemini.py                  # busca y actualiza DB
-    python buscar_cuits_gemini.py --dry-run        # solo muestra, no guarda
-    python buscar_cuits_gemini.py --solo-mostrar   # lista empresas sin CUIT
+Este script fue el origen de los CUITs inválidos que estuvieron cargados en
+producción hasta 2026-07: le pedía CUITs a Gemini y los escribía directo en
+la base de datos SIN validar el dígito verificador de AFIP ni ninguna otra
+fuente. Los 15 CUITs que generó fallaban el checksum — o sea, no eran CUITs
+reales, eran números con forma de CUIT inventados por el modelo.
+
+Un LLM sin acceso a una fuente de datos real (AFIP, Boletín Oficial,
+cuitonline, etc.) no tiene forma de "saber" un CUIT — solo completa el
+patrón. Por eso esto NO es una fuente confiable de identificadores fiscales,
+por más alta que diga que es su "confianza".
+
+Si en algún momento hace falta buscar CUITs faltantes, la forma correcta es:
+  1. Buscar la razón social real de la filial argentina en fuentes públicas
+     (Boletín Oficial, cuitonline.com, AFIP).
+  2. Validar el CUIT encontrado con el dígito verificador (módulo 11).
+  3. Cargarlo a mano en data/ocde_seed.py con una fuente citada.
+
+Este script ahora valida el checksum antes de escribir cualquier cosa (ver
+_cuit_valido más abajo) y requiere el flag --escribir-de-todos-modos además
+de --dry-run=False para tocar la base, precisamente para que nadie lo corra
+sin querer. Aun así, el propio texto que Gemini devuelve sigue sin ser
+confiable — este script queda para referencia histórica, no como herramienta
+recomendada.
+
+Uso (solo lectura, no escribe nada):
+    python buscar_cuits_gemini.py --solo-mostrar
 
 Requisitos:
     pip install requests google-generativeai
@@ -29,6 +50,20 @@ import requests
 MEACI_API = "https://meaci-production.up.railway.app"
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 PAUSA = 2.0  # segundos entre consultas a Gemini
+
+
+def _cuit_valido(cuit: str) -> bool:
+    """Valida el dígito verificador AFIP (módulo 11). Espera 11 dígitos."""
+    if len(cuit) != 11 or not cuit.isdigit():
+        return False
+    mult = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]
+    s = sum(int(d) * m for d, m in zip(cuit[:10], mult))
+    v = 11 - (s % 11)
+    if v == 11:
+        v = 0
+    if v == 10:
+        return False
+    return v == int(cuit[10])
 
 
 # ── 1. Obtener empresas sin CUIT de la API ─────────────────────────────────────
@@ -118,10 +153,18 @@ def actualizar_db(empresa_id: int, nombre_matriz: str, cuit: str) -> bool:
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Busca CUITs faltantes con Gemini")
-    parser.add_argument("--dry-run", action="store_true", help="No actualiza DB")
+    parser = argparse.ArgumentParser(description="Busca CUITs faltantes con Gemini (solo lectura por defecto)")
+    parser.add_argument("--dry-run", action="store_true", help="No actualiza DB (default si no se pasa --escribir-de-todos-modos)")
     parser.add_argument("--solo-mostrar", action="store_true", help="Solo lista empresas sin CUIT")
+    parser.add_argument(
+        "--escribir-de-todos-modos", action="store_true",
+        help="Requerido para escribir en la DB. Sin este flag el script SIEMPRE corre en modo dry-run, "
+             "aunque hayas encontrado candidatos con checksum válido. Usalo solo después de verificar "
+             "cada CUIT a mano contra una fuente pública."
+    )
     args = parser.parse_args()
+    if not args.escribir_de_todos_modos:
+        args.dry_run = True
 
     print("🔍 MEACI — Buscador de CUITs faltantes\n")
 
@@ -166,8 +209,11 @@ def main():
             filial = resultado.get("nombre_filial", "")
             confianza = resultado.get("confianza", "?")
 
-            if len(cuit) == 11:
-                print(f"   ✅ CUIT: {cuit} | {filial} | confianza: {confianza}")
+            if len(cuit) == 11 and _cuit_valido(cuit):
+                print(f"   ✅ CUIT con checksum válido: {cuit} | {filial} | confianza declarada: {confianza}")
+                print(f"      ⚠️  Esto solo confirma que el número TIENE la forma de un CUIT real.")
+                print(f"      ⚠️  NO confirma que sea el CUIT correcto de esta empresa — verificar a mano")
+                print(f"      ⚠️  contra cuitonline.com o el Boletín Oficial antes de cargarlo.")
                 encontrados.append({
                     "id": emp["id"],
                     "nombre_matriz": nombre,
@@ -175,6 +221,9 @@ def main():
                     "nombre_filial": filial,
                     "confianza": confianza,
                 })
+            elif len(cuit) == 11:
+                print(f"   ❌ CUIT con dígito verificador INVÁLIDO (no es un CUIT real): {resultado['cuit']}")
+                no_encontrados.append(nombre)
             else:
                 print(f"   ⚠️  CUIT inválido recibido: {resultado['cuit']}")
                 no_encontrados.append(nombre)
