@@ -28,8 +28,8 @@ CASOS_OCDE = [
             "pais_sede": "Alemania",
             "sector": "Tecnología industrial",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Siemens S.A. Argentina"]),
-            "cuits_ar": json.dumps(["30546675813"]),
+            "filiales_ar": json.dumps(["Siemens S.A."]),
+            "cuits_ar": json.dumps(["33716578939"]),  # verificado cuitonline/BORA 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"Plea Agreement","monto_usd":448.5,"anio":2008,"url_fuente":"https://www.justice.gov/sites/default/files/criminal-fraud/legacy/2013/05/02/12-15-08siemensakt-plea.pdf"},
@@ -50,8 +50,8 @@ CASOS_OCDE = [
             "pais_sede": "Suiza",
             "sector": "Tecnología eléctrica",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["ABB S.A. Argentina"]),
-            "cuits_ar": json.dumps(["30576558683"]),
+            "filiales_ar": json.dumps(["ABB S.A.U."]),
+            "cuits_ar": json.dumps(["30503948164"]),  # verificado BORA 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":315.0,"anio":2022,"url_fuente":"https://www.justice.gov/criminal/media/1263851/dl?inline"},
@@ -73,8 +73,8 @@ CASOS_OCDE = [
             "pais_sede": "Países Bajos / Francia",
             "sector": "Aeronáutica y defensa",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Airbus Argentina SRL"]),
-            "cuits_ar": json.dumps(["30710408502"]),
+            "filiales_ar": json.dumps(["Airbus Argentina S.A."]),
+            "cuits_ar": json.dumps(["30716262762"]),  # verificado cuitonline 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":2083.1,"anio":2020,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/1242051/dl?inline"},
@@ -96,7 +96,7 @@ CASOS_OCDE = [
             "sector": "Construcción e ingeniería",
             "presencia_argentina": True,
             "filiales_ar": json.dumps(["CNO S.A. (ex Constructora Norberto Odebrecht)"]),
-            "cuits_ar": json.dumps(["30708817331"]),
+            "cuits_ar": json.dumps(["30630692373"]),  # verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"Plea Agreement","monto_usd":2600.0,"anio":2016,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/920101/dl?inline"},
@@ -117,8 +117,8 @@ CASOS_OCDE = [
             "pais_sede": "Brasil",
             "sector": "Petroquímica",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Braskem Idesa Argentina"]),
-            "cuits_ar": json.dumps(["30709794099"]),
+            "filiales_ar": json.dumps(["Braskem Argentina S.A."]),
+            "cuits_ar": json.dumps(["30691215446"]),  # verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"Plea Agreement","monto_usd":632.6,"anio":2016,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/920091/dl?inline"},
@@ -139,8 +139,8 @@ CASOS_OCDE = [
             "pais_sede": "Brasil",
             "sector": "Aeronáutica",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Embraer Argentina"]),
-            "cuits_ar": json.dumps(["30710255881"]),
+            "filiales_ar": json.dumps([]),
+            "cuits_ar": json.dumps([]),  # sin filial verificable en fuentes públicas — pendiente
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":107.0,"anio":2016,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/904636/dl?inline"},
@@ -160,8 +160,8 @@ CASOS_OCDE = [
             "pais_sede": "Reino Unido",
             "sector": "Motores y defensa",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Rolls-Royce Energy Systems Argentina"]),
-            "cuits_ar": json.dumps(["30708064040"]),
+            "filiales_ar": json.dumps(["MTU Detroit Diesel-Allison Argentina S.A."]),
+            "cuits_ar": json.dumps(["30708587482"]),  # unidad Power Systems de Rolls-Royce, verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"UK SFO","pais":"Reino Unido","tipo":"DPA","monto_usd":497.0,"anio":2017,"url_fuente":"https://www.gov.uk/government/publications/sfo-deferred-prosecution-agreement-with-rolls-royce"},
@@ -182,8 +182,8 @@ CASOS_OCDE = [
             "pais_sede": "Estados Unidos",
             "sector": "Banca de inversión",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Goldman Sachs Argentina LLC"]),
-            "cuits_ar": json.dumps(["30711732557"]),
+            "filiales_ar": json.dumps(["Goldman Sachs Argentina LLC Suc. Arg."]),
+            "cuits_ar": json.dumps(["30680753543"]),  # verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":2315.0,"anio":2020,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/1329926/dl?inline"},
@@ -206,7 +206,7 @@ CASOS_OCDE = [
             "sector": "Software empresarial",
             "presencia_argentina": True,
             "filiales_ar": json.dumps(["SAP Argentina S.A."]),
-            "cuits_ar": json.dumps(["30691426657"]),
+            "cuits_ar": json.dumps(["30685163701"]),  # verificado cuitonline/BORA 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":118.8,"anio":2024,"url_fuente":"https://www.justice.gov/criminal/media/1333316/dl?inline"},
@@ -227,8 +227,8 @@ CASOS_OCDE = [
             "pais_sede": "Estados Unidos",
             "sector": "Consultoría de gestión",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["McKinsey & Company Argentina"]),
-            "cuits_ar": json.dumps(["30691653551"]),
+            "filiales_ar": json.dumps(["McKinsey Argentina SRL"]),
+            "cuits_ar": json.dumps(["30708724811"]),  # verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":122.9,"anio":2024,"url_fuente":"https://www.justice.gov/criminal/media/1379476/dl?inline"},
@@ -248,8 +248,8 @@ CASOS_OCDE = [
             "pais_sede": "Israel",
             "sector": "Farmacéutica",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Teva Argentina S.A."]),
-            "cuits_ar": json.dumps(["30684949171"]),
+            "filiales_ar": json.dumps(["IVAX Argentina S.A."]),
+            "cuits_ar": json.dumps(["33501707029"]),  # razón social legal de Teva Argentina, verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":283.2,"anio":2016,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/920436/dl?inline"},
@@ -269,8 +269,8 @@ CASOS_OCDE = [
             "pais_sede": "Estados Unidos",
             "sector": "Tecnología industrial y aeroespacial",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Honeywell Argentina S.R.L."]),
-            "cuits_ar": json.dumps(["30500662704"]),
+            "filiales_ar": json.dumps(["Honeywell SAIC"]),
+            "cuits_ar": json.dumps(["30580523508"]),  # verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":79.0,"anio":2022,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/1558776/dl?inline"},
@@ -290,8 +290,8 @@ CASOS_OCDE = [
             "pais_sede": "Suiza",
             "sector": "Banca",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Credit Suisse AG Sucursal Argentina (ahora UBS)"]),
-            "cuits_ar": json.dumps(["30707340023"]),
+            "filiales_ar": json.dumps(["Credit Suisse (Argentina) S.R.L."]),
+            "cuits_ar": json.dumps(["30699030496"]),  # verificado 2026-07, absorbida por UBS
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":247.5,"anio":2021,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/1444986/dl?inline"},
@@ -312,8 +312,8 @@ CASOS_OCDE = [
             "pais_sede": "Reino Unido / Francia",
             "sector": "Oil & Gas servicios",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Technip Argentina S.A."]),
-            "cuits_ar": json.dumps(["30708018599"]),
+            "filiales_ar": json.dumps([]),
+            "cuits_ar": json.dumps([]),  # sin CUIT verificable en fuentes públicas — pendiente
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"DPA","monto_usd":296.2,"anio":2019,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/1225061/dl?inline"},
@@ -354,8 +354,8 @@ CASOS_OCDE = [
             "pais_sede": "Suiza",
             "sector": "Commodities y minería",
             "presencia_argentina": True,
-            "filiales_ar": json.dumps(["Glencore Argentina Grain SRL"]),
-            "cuits_ar": json.dumps(["30685324085"]),
+            "filiales_ar": json.dumps(["Glencore Cereales S.A."]),
+            "cuits_ar": json.dumps(["30585180528"]),  # verificado 2026-07
         },
         "resoluciones": [
             {"autoridad":"DOJ","pais":"Estados Unidos","tipo":"Plea Agreement","monto_usd":700.5,"anio":2022,"url_fuente":"https://www.justice.gov/criminal/criminal-fraud/file/1508931/dl?inline"},
