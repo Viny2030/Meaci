@@ -1,7 +1,12 @@
 """
-Scraper del DOJ — FCPA Press Releases
-URL base: https://www.justice.gov/criminal/fraud/fcpa/cases
+Scraper del DOJ — FCPA Corporate Enforcement Actions
+URL base: https://www.justice.gov/criminal/criminal-fraud/corporate-enforcement-actions
 Corre diariamente via cron. Solo agrega casos nuevos (por URL).
+
+Nota (2026-07): la URL anterior (/criminal/fraud/fcpa/cases) da 404 — el DOJ
+reorganizó el sitio. Esta es la URL vigente verificada. Si vuelve a devolver
+404 en el futuro, revisar https://www.justice.gov/criminal/criminal-fraud/enforcement-actions
+para encontrar el nuevo destino antes de asumir que el scraper "no encontró casos".
 """
 import httpx
 from bs4 import BeautifulSoup
@@ -11,17 +16,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-DOJ_FCPA_URL = "https://www.justice.gov/criminal/fraud/fcpa/cases"
+DOJ_FCPA_URL = "https://www.justice.gov/criminal/criminal-fraud/corporate-enforcement-actions"
 DOJ_BASE = "https://www.justice.gov"
 
 
 def obtener_casos_recientes(limite: int = 20) -> list[dict]:
     """
-    Retorna lista de casos FCPA recientes desde el portal DOJ.
+    Retorna lista de casos FCPA corporativos desde el portal DOJ, ordenados
+    por año descendente (los más recientes primero).
     Cada item: {titulo, url, fecha, descripcion}
     """
     try:
-        resp = httpx.get(DOJ_FCPA_URL, timeout=30, follow_redirects=True)
+        resp = httpx.get(DOJ_FCPA_URL, timeout=30, follow_redirects=True,
+                          headers={"User-Agent": "Mozilla/5.0"})
         resp.raise_for_status()
     except Exception as e:
         logger.error(f"[DOJ scraper] Error al conectar: {e}")
@@ -30,10 +37,9 @@ def obtener_casos_recientes(limite: int = 20) -> list[dict]:
     soup = BeautifulSoup(resp.text, "lxml")
     casos = []
 
-    # El portal DOJ lista los casos en tablas o listas — ajustar según estructura real
-    filas = soup.select("table tr, .views-row")
-    for fila in filas[:limite]:
-        link = fila.find("a", href=True)
+    # La página lista cada caso como <p><a href="...">Título</a>, AÑO</p>
+    for p in soup.select("p"):
+        link = p.find("a", href=True)
         if not link:
             continue
         href = link["href"]
@@ -43,18 +49,22 @@ def obtener_casos_recientes(limite: int = 20) -> list[dict]:
         if len(texto) < 5:
             continue
 
-        fecha_tag = fila.find(class_=re.compile(r"date|fecha|year", re.I))
-        fecha = fecha_tag.get_text(strip=True) if fecha_tag else ""
+        resto = p.get_text(" ", strip=True).replace(texto, "", 1)
+        anio_match = re.search(r"(19|20)\d{2}", resto)
+        anio = anio_match.group(0) if anio_match else ""
 
         casos.append({
             "titulo": texto,
             "url": href,
-            "fecha": fecha,
+            "fecha": anio,
             "fuente": "DOJ",
         })
 
-    logger.info(f"[DOJ scraper] {len(casos)} casos encontrados")
-    return casos
+    # Ordenar por año descendente (los sin año conocido quedan al final)
+    casos.sort(key=lambda c: int(c["fecha"]) if c["fecha"] else 0, reverse=True)
+
+    logger.info(f"[DOJ scraper] {len(casos)} casos encontrados en total")
+    return casos[:limite]
 
 
 def extraer_detalle_caso(url: str) -> Optional[dict]:
