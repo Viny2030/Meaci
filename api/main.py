@@ -14,6 +14,49 @@ from .models import (
     Caso, Empresa, Resolucion, PresenciaAR, Alerta
 )
 
+import json as _json
+import re as _re
+
+
+def _normalizar_cuit(cuit: str) -> str:
+    """Deja solo dígitos. Devuelve '' si el resultado no tiene 11 dígitos."""
+    limpio = _re.sub(r"\D", "", cuit or "")
+    return limpio if len(limpio) == 11 else ""
+
+
+def _cuit_valido(cuit: str) -> bool:
+    """Valida el dígito verificador AFIP (módulo 11). Espera 11 dígitos."""
+    if len(cuit) != 11 or not cuit.isdigit():
+        return False
+    mult = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]
+    s = sum(int(d) * m for d, m in zip(cuit[:10], mult))
+    v = 11 - (s % 11)
+    if v == 11:
+        v = 0
+    if v == 10:
+        return False
+    return v == int(cuit[10])
+
+
+def _buscar_empresa_por_cuit(db: Session, cuit: str):
+    """Busca una Empresa cuyo cuits_ar contenga el CUIT EXACTO (no substring).
+
+    Usa ilike como pre-filtro barato en SQL y luego valida con match exacto
+    contra la lista deserializada, para evitar falsos positivos como
+    '3054' matcheando '30546675813'.
+    """
+    cuit = _normalizar_cuit(cuit)
+    if not cuit:
+        return None
+    candidatas = db.query(Empresa).filter(Empresa.cuits_ar.ilike(f"%{cuit}%")).all()
+    for e in candidatas:
+        try:
+            if cuit in _json.loads(e.cuits_ar or "[]"):
+                return e
+        except (ValueError, TypeError):
+            continue
+    return None
+
 
 # ── LIFESPAN (reemplaza on_event deprecated) ──────────────────────────────────
 
@@ -268,7 +311,7 @@ def listar_empresas(
 
 @app.get("/api/empresas/cuit/{cuit}", tags=["Empresas"])
 def empresa_por_cuit(cuit: str, db: Session = Depends(get_db)):
-    empresa = db.query(Empresa).filter(Empresa.cuits_ar.ilike(f"%{cuit}%")).first()
+    empresa = _buscar_empresa_por_cuit(db, cuit)
     if not empresa:
         raise HTTPException(status_code=404, detail="Empresa no encontrada para ese CUIT")
     return _serializar_empresa(empresa)
@@ -314,9 +357,13 @@ def cruce_comprarg(
     Dado un CUIT, verifica si pertenece a una empresa o filial sancionada por OCDE.
     Usar desde Contratos v1, v2 y Monitor Ejecutivo para inyectar el flag.
     """
-    empresa = db.query(Empresa).filter(Empresa.cuits_ar.ilike(f"%{cuit}%")).first()
+    cuit_norm = _normalizar_cuit(cuit)
+    if not cuit_norm:
+        raise HTTPException(status_code=422, detail="CUIT inválido: se esperan 11 dígitos")
+
+    empresa = _buscar_empresa_por_cuit(db, cuit_norm)
     if not empresa:
-        return {"cuit": cuit, "sancionada_ocde": False, "datos": None}
+        return {"cuit": cuit_norm, "sancionada_ocde": False, "datos": None}
 
     casos = (
         db.query(Caso)
@@ -326,7 +373,7 @@ def cruce_comprarg(
     )
 
     return {
-        "cuit": cuit,
+        "cuit": cuit_norm,
         "sancionada_ocde": True,
         "empresa_matriz": empresa.nombre_matriz,
         "pais_sede": empresa.pais_sede,
@@ -411,10 +458,10 @@ def cruce_cuits_bulk(
     db: Session = Depends(get_db),
 ):
     """Verifica lista de CUITs contra base MEACI (OCDE)."""
-    lista = [c.strip().replace("-", "").replace(".", "") for c in cuits.split(",") if c.strip()]
+    lista = [n for n in (_normalizar_cuit(c) for c in cuits.split(",")) if n]
     alertas = {}
     for cuit in lista:
-        empresa = db.query(Empresa).filter(Empresa.cuits_ar.ilike(f"%{cuit}%")).first()
+        empresa = _buscar_empresa_por_cuit(db, cuit)
         if empresa:
             alertas[cuit] = {
                 "sancionada": True,
