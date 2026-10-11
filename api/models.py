@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./meaci.db")
+# "or": una variable vacía (p. ej. un secret no cargado en Actions) rompía create_engine
+DATABASE_URL = os.getenv("DATABASE_URL") or "sqlite:///./meaci.db"
 
 # Railway entrega postgres:// pero SQLAlchemy necesita postgresql://
 if DATABASE_URL.startswith("postgres://"):
@@ -117,6 +118,21 @@ class Alerta(Base):
     fecha_resolucion = Column(DateTime, nullable=True)
 
     empresa          = relationship("Empresa", back_populates="alertas")
+
+
+class Novedad(Base):
+    """Caso publicado por una autoridad (hoy: DOJ) que no está en la base.
+    Se registra para revisión; NO se carga como caso hasta verificarlo."""
+    __tablename__ = "novedades"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    fuente      = Column(String(30))            # DOJ
+    titulo      = Column(String(500))
+    empresa     = Column(String(300))
+    anio        = Column(Integer)
+    url         = Column(String(500), unique=True, index=True)
+    estado      = Column(String(20), default="pendiente")   # pendiente / cargado / descartado
+    detectada   = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 def crear_tablas():

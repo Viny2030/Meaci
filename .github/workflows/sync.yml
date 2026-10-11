@@ -1,4 +1,4 @@
-name: Sync MEACI — scrapers semanales
+name: MEACI — revisión semanal de novedades
 
 on:
   schedule:
@@ -21,7 +21,7 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Correr sync
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Sólo informa: el resultado queda en el resumen de la corrida (Actions → Summary).
+      # No escribe en la base (antes insertaba expedientes del DOJ como empresas).
+      - name: Revisar novedades
         run: python utils/sync.py

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from .models import (
     get_db, crear_tablas, SessionLocal,
-    Caso, Empresa, Resolucion, PresenciaAR, Alerta
+    Caso, Empresa, Resolucion, PresenciaAR, Alerta, Novedad
 )
 
 import json as _json
@@ -120,33 +120,45 @@ def _run_cron():
             f"total activas: {db.query(Alerta).filter(Alerta.activa == True).count()}"
         )
 
-        # 3. Verificar casos nuevos en el DOJ (solo detecta y loguea — no inserta
-        #    datos automáticamente, para no repetir el problema de CUITs/casos
-        #    inventados sin verificación humana. Revisar el log y cargar a mano
-        #    en data/ocde_seed.py los casos que correspondan.)
-        try:
-            from scraper.doj import obtener_casos_recientes
-            urls_conocidas = {
-                r[0] for r in db.query(Resolucion.url_fuente).filter(
-                    Resolucion.url_fuente.isnot(None)
-                ).all()
-            }
-            casos_doj = obtener_casos_recientes(limite=30)
-            nuevos_doj = [c for c in casos_doj if c["url"] not in urls_conocidas]
-            if nuevos_doj:
-                log.warning(
-                    f"[cron] {len(nuevos_doj)} casos DOJ nuevos, no están en la base — "
-                    f"revisar y cargar manualmente si corresponde:"
-                )
-                for c in nuevos_doj:
-                    log.warning(f"  → [{c['fecha']}] {c['titulo']} — {c['url']}")
-            else:
-                log.info("[cron] Sin casos DOJ nuevos respecto a la base actual")
-        except Exception as e:
-            log.error(f"[cron] Error al verificar casos DOJ: {e}")
+        # 3. Casos nuevos del DOJ: se GUARDAN en la tabla "novedades" para
+        #    revisión (visible en /api/novedades y en la página). No se cargan
+        #    como casos: eso sigue siendo manual, después de verificar.
+        _detectar_novedades(db, log)
     except Exception as e:
         db.rollback()
         logging.getLogger("meaci.cron").error(f"[cron] ERROR: {e}")
+    finally:
+        db.close()
+
+
+ESTADO_NOVEDADES = {"ultima_revision": None, "error": None}
+
+
+def _detectar_novedades(db, log):
+    from datetime import datetime, timezone
+    try:
+        from scraper.novedades import detectar_novedades
+        nombres = [n for (n,) in db.query(Empresa.nombre_matriz).all()] + \
+                  [n for (n,) in db.query(Caso.nombre_caso).all()]
+        urls = {u for (u,) in db.query(Resolucion.url_fuente).filter(Resolucion.url_fuente.isnot(None)).all()}
+        urls |= {u for (u,) in db.query(Novedad.url).all()}
+        nuevas = detectar_novedades(nombres, urls)
+        for n in nuevas:
+            db.add(Novedad(**n))
+        db.commit()
+        ESTADO_NOVEDADES.update(ultima_revision=datetime.now(timezone.utc).isoformat(), error=None)
+        log.info(f"[cron] Novedades DOJ: {len(nuevas)} nuevas para revisar")
+    except Exception as e:
+        db.rollback()
+        ESTADO_NOVEDADES.update(error=str(e)[:300])
+        log.error(f"[cron] Error al verificar casos DOJ: {e}")
+
+
+def _novedades_al_iniciar():
+    import logging
+    db = SessionLocal()
+    try:
+        _detectar_novedades(db, logging.getLogger("meaci.cron"))
     finally:
         db.close()
 
@@ -180,6 +192,9 @@ async def lifespan(app: FastAPI):
         id="ciclo_diario",
         replace_existing=True,
     )
+    # Una revisión de novedades al arrancar (en segundo plano, no demora el inicio)
+    if os.getenv("MEACI_NOVEDADES_AL_INICIAR", "1") == "1":
+        scheduler.add_job(_novedades_al_iniciar, id="novedades_inicio", replace_existing=True)
     scheduler.start()
     logging.getLogger("meaci").info("[scheduler] Cron diario activo — dispara a las 06:00 AR")
 
@@ -487,8 +502,13 @@ def ejecutar_cron_manual(
     Dispara el ciclo diario manualmente sin esperar las 06:00.
     Requiere el REFRESH_TOKEN configurado en las variables de entorno.
     """
-    import os
-    if token != os.getenv("REFRESH_TOKEN", "dev"):
+    import hmac
+    esperado = os.getenv("REFRESH_TOKEN", "")
+    # Sin REFRESH_TOKEN en Railway el endpoint queda deshabilitado (antes
+    # aceptaba "dev", publicado en el manual de la página).
+    if not esperado or esperado == "dev":
+        raise HTTPException(status_code=503, detail="Endpoint deshabilitado: configurá REFRESH_TOKEN")
+    if not hmac.compare_digest(token, esperado):
         raise HTTPException(status_code=403, detail="Token inválido")
     try:
         _run_cron()
@@ -516,6 +536,26 @@ def cruce_cuits_bulk(
                 "pais": empresa.pais_sede,
             }
     return {"alertas": alertas, "total_alertas": len(alertas), "total_consultados": len(lista), "fuente": "MEACI-OCDE"}
+
+
+@app.get("/api/novedades", tags=["Novedades"])
+def listar_novedades(estado: Optional[str] = "pendiente", db: Session = Depends(get_db)):
+    """Casos publicados por el DOJ (desde 2025) que no están en la base del MEACI.
+    Son candidatos a revisar: pueden no ser casos multijurisdiccionales."""
+    q = db.query(Novedad)
+    if estado:
+        q = q.filter(Novedad.estado == estado)
+    return {
+        "ultima_revision": ESTADO_NOVEDADES["ultima_revision"],
+        "error": ESTADO_NOVEDADES["error"],
+        "nota": "Detectadas automáticamente; se cargan como casos sólo después de verificarlas.",
+        "novedades": [
+            {"id": n.id, "fuente": n.fuente, "empresa": n.empresa, "titulo": n.titulo,
+             "anio": n.anio, "url": n.url, "estado": n.estado,
+             "detectada": n.detectada.isoformat() if n.detectada else None}
+            for n in q.order_by(Novedad.anio.desc(), Novedad.id.desc()).all()
+        ],
+    }
 
 
 @app.get("/api/meaci-stats", tags=["Cruces"])

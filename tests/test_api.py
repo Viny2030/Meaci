@@ -176,3 +176,24 @@ def test_presencia_ar_endpoint():
     assert r.status_code == 200
     data = r.json()
     assert len(data) == 15
+
+
+# ── Novedades y cron ──────────────────────────────────────────────────────────
+
+def test_novedades_endpoint():
+    r = client.get("/api/novedades")
+    assert r.status_code == 200
+    d = r.json()
+    assert "novedades" in d and isinstance(d["novedades"], list)
+
+
+def test_empresa_desde_titulo():
+    from scraper.novedades import empresa_desde_titulo
+    assert empresa_desde_titulo("U.S. v. Gunvor S.A.: Docket No. 1:24-cr-00085-ENV") == "Gunvor S.A"
+    assert empresa_desde_titulo("In re AAR Corp.") == "AAR Corp"
+
+
+def test_cron_sin_token_configurado(monkeypatch):
+    monkeypatch.delenv("REFRESH_TOKEN", raising=False)
+    r = client.post("/api/cron?token=dev")
+    assert r.status_code == 503

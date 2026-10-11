@@ -146,6 +146,7 @@
     <a onclick="showPage('presencia')" id="nav-presencia">Presencia AR</a>
     <a onclick="showPage('cruce')" id="nav-cruce">Cruce CUIT</a>
     <a onclick="showPage('alertas')" id="nav-alertas">Alertas</a>
+    <a onclick="showPage('novedades')" id="nav-novedades">Novedades</a>
     <a onclick="showPage('legislacion')" id="nav-legislacion">Legislación</a>
     <a onclick="showPage('manual')" id="nav-manual">Manual</a>
   </div>
@@ -352,6 +353,20 @@
 </div>
 
 
+
+<!-- PAGE: NOVEDADES -->
+<div class="page" id="page-novedades">
+  <div class="section-hdr">
+    <h2>Novedades por revisar</h2>
+    <span class="count" id="count-novedades">cargando...</span>
+  </div>
+  <div class="aviso">
+    Resoluciones corporativas publicadas por el DOJ (EE. UU.) desde 2025 que todavía no están en la base. Se detectan solas todos los días; no se cargan como casos hasta verificar que sean resoluciones multijurisdiccionales.
+  </div>
+  <div class="table-wrap" id="novedades-contenedor">
+    <div class="loading">Cargando novedades...</div>
+  </div>
+</div>
 
 <!-- PAGE: LEGISLACION -->
 <div class="page" id="page-legislacion">
@@ -803,7 +818,7 @@
     <ul class="man-steps">
       <li><span>›</span>Job 1 — Verifica CUITs contra COMPR.AR (fase 1: log · fase 2: escribe DB)</li>
       <li><span>›</span>Job 2 — Genera alertas para empresas sin alerta activa del mismo tipo</li>
-      <li><span>›</span>Job 3 — Loguea resumen: casos / empresas / alertas activas</li>
+      <li><span>›</span>Job 3 — Busca resoluciones nuevas del DOJ (desde 2025) que no están en la base y las lista en la pestaña Novedades (<code style="font-family:var(--mono);font-size:10px">GET /api/novedades</code>). No las carga como casos</li>
       <li><span>›</span>Se ejecuta como BackgroundScheduler en el mismo proceso que FastAPI</li>
       <li><span>›</span>Railway reinicia el servicio en cada deploy → cron arranca automáticamente</li>
     </ul>
@@ -816,9 +831,8 @@
     <div class="man-body">Los datos base provienen del informe OCDE 2026 "Sanctioning foreign bribery through multijurisdictional resolutions". Los scrapers del DOJ, SFO y PNF detectan casos nuevos; se cargan en la base a mano, después de verificarlos.</div>
     <ul class="man-steps">
       <li><span>›</span>Seed estático: los 31 casos de la OCDE con sus resoluciones principales (73 de las 114 del informe) · cargado en startup</li>
-      <li><span>›</span>Scraper DOJ: RSS + HTML press releases FCPA (diario)</li>
-      <li><span>›</span>Scraper SFO: DPA documents sfo.gov.uk (semanal)</li>
-      <li><span>›</span>Scraper PNF: CJIPs tribunal-de-paris.justice.fr (semanal)</li>
+      <li><span>›</span>DOJ: listado de Corporate Enforcement Actions (diario en la app + resumen semanal en GitHub Actions) → pestaña Novedades</li>
+      <li><span>›</span>SFO y PNF: los listados conocidos están en scraper/sfo.py y scraper/pnf.py; sus páginas cambiaron y no se consultan automáticamente</li>
       <li><span>›</span>Matcher: CUIT exacto primero · RapidFuzz token_sort_ratio umbral 80</li>
       <li><span>›</span>Montos por caso: totales globales anunciados, en USD nominales. Total OCDE: más de USD 33.700M (USD constantes 2024)</li>
     </ul>
@@ -1211,6 +1225,32 @@ async function cargarAlertas() {
     </div>`).join('');
 }
 
+async function cargarNovedades() {
+  const d = await fetchJSON('/api/novedades');
+  if (!d) return;
+  const lista = d.novedades || [];
+  const rev = d.ultima_revision ? ' · última revisión ' + d.ultima_revision.slice(0,10) : '';
+  document.getElementById('count-novedades').textContent = lista.length + ' por revisar' + rev;
+  const cont = document.getElementById('novedades-contenedor');
+  if (d.error) {
+    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">No se pudo consultar el DOJ en la última revisión. Se reintenta en el próximo ciclo diario.</div>';
+    if (!lista.length) return;
+  }
+  if (!lista.length) {
+    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">Sin novedades: todo lo publicado por el DOJ desde 2025 ya está en la base o corresponde a empresas ya cargadas.</div>';
+    return;
+  }
+  const esc = t => String(t || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  cont.innerHTML = lista.map(n => `
+    <div class="alerta-row">
+      <div style="min-width:60px;font-family:var(--mono);font-size:12px">${n.anio || ''}</div>
+      <div style="min-width:200px;font-weight:500;font-size:12px">${esc(n.empresa)}</div>
+      <div style="min-width:50px;font-size:11px;color:var(--text2)">${esc(n.fuente)}</div>
+      <div style="font-size:11px;flex:1"><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.titulo)}</a></div>
+      <div style="font-size:10px;color:var(--text3);white-space:nowrap">${n.detectada ? n.detectada.slice(0,10) : ''}</div>
+    </div>`).join('');
+}
+
 function filtrarAlertas() {
   cargarAlertas();
 }
@@ -1225,6 +1265,7 @@ function showPage(id) {
   if (id === 'empresas' && !datosEmpresas.length) cargarEmpresas();
   if (id === 'presencia') cargarPresencia();
   if (id === 'alertas') cargarAlertas();
+  if (id === 'novedades') cargarNovedades();
   window.scrollTo(0, 0);
 }
 
