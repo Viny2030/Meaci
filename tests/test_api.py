@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from api.main import app
 
 client = TestClient(app)
+client.__enter__()  # dispara el lifespan: crea las tablas y carga el seed
 
 
 # ── Básicos ───────────────────────────────────────────────────────────────────
@@ -150,7 +151,7 @@ def test_fuzzy_match_siemens():
 
 def test_fuzzy_match_cuit_directo():
     from matcher.fuzzy_match import verificar_proveedor
-    r = verificar_proveedor("CUALQUIER NOMBRE", "30-57655868-3")
+    r = verificar_proveedor("CUALQUIER NOMBRE", "30-50394816-4")
     assert r is not None
     assert r["metodo"] == "cuit_exacto"
     assert "ABB" in r["empresa_ocde"]

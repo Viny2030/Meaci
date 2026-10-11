@@ -164,9 +164,9 @@
       <div class="kpi-sub">2008 – 2026 · Fuente OCDE</div>
     </div>
     <div class="kpi kpi-info">
-      <div class="kpi-label">Resoluciones totales</div>
+      <div class="kpi-label">Resoluciones cargadas</div>
       <div class="kpi-value" id="kpi-res">—</div>
-      <div class="kpi-sub">NTRs + 1 trial</div>
+      <div class="kpi-sub" id="kpi-res-sub">de 114 según la OCDE</div>
     </div>
     <div class="kpi kpi-danger">
       <div class="kpi-label">Con presencia en Argentina</div>
@@ -174,9 +174,9 @@
       <div class="kpi-sub">filiales · contratos · operaciones</div>
     </div>
     <div class="kpi kpi-green">
-      <div class="kpi-label">Sanciones totales (USD 2024)</div>
+      <div class="kpi-label">Sanciones anunciadas (USD nominales)</div>
       <div class="kpi-value" id="kpi-monto">—</div>
-      <div class="kpi-sub">Argentina no cobró demand-side</div>
+      <div class="kpi-sub" id="kpi-monto-sub">OCDE: más de USD 33,7B (USD 2024)</div>
     </div>
   </div>
 </div>
@@ -304,7 +304,7 @@
       <input type="text" id="cuit-input" placeholder="30-12345678-9" maxlength="13" style="flex:1; font-family:var(--mono); font-size:14px; padding:8px 12px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--bg); color:var(--text);" oninput="limpiarCruce()" onkeydown="if(event.key==='Enter') verificarCuit()">
       <button onclick="verificarCuit()" style="padding:8px 16px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--bg); color:var(--text); cursor:pointer; font-size:13px;">Verificar</button>
     </div>
-    <div style="font-size:11px; color:var(--text3); margin-top:6px;">Ejemplos: 30-54667581-3 (Siemens) · 30-69142665-7 (SAP) · 30-57655868-3 (ABB)</div>
+    <div style="font-size:11px; color:var(--text3); margin-top:6px;">Ejemplos: 33-71657893-9 (Siemens) · 30-68516370-1 (SAP) · 30-50394816-4 (ABB)</div>
     <div id="cruce-result"></div>
   </div>
 
@@ -622,7 +622,7 @@
       <li>Art. 23 — Exención de pena si hay programa de integridad efectivo</li>
       <li>OA (Oficina Anticorrupción) — supervisión de programas de compliance</li>
       <li>UIF — Unidad de Información Financiera: seguimiento de flujos sospechosos</li>
-      <li>Sin participación en MJRs al 2026: USD 12.600M estimados no recuperados</li>
+      <li>Sin participación en MJRs al 2026: Argentina no figura entre las 12 jurisdicciones que concluyeron resoluciones. La OCDE estima en ~USD 12.600M (USD 2024) lo que debieron recibir en conjunto todos los países donde se pagaron los sobornos; no es un monto propio de Argentina.</li>
     </ul>
     <a class="leg-link" href="https://www.argentina.gob.ar/normativa/nacional/ley-27401-304436" target="_blank">Texto oficial →</a>
   </div>
@@ -731,7 +731,7 @@
       <li><span>›</span>Cada resolución tiene link directo al documento oficial (DOJ press release, SFO DPA, etc.)</li>
       <li><span>›</span>Columna "Alerta AR" indica riesgo: rojo (&gt;USD 500M) · naranja (resto)</li>
     </ul>
-    <div class="man-tip">Los montos están en USD constantes 2024 para comparabilidad histórica.</div>
+    <div class="man-tip">Los montos por caso son los totales globales anunciados (USD nominales del año de la resolución). La OCDE estima el total en más de USD 33.700M en USD constantes 2024, en 114 resoluciones; la base del MEACI tiene cargadas las principales de cada caso.</div>
   </div>
 
   <div class="man-card">
@@ -755,19 +755,19 @@
       <li><span>›</span>Todas las empresas de esta tabla tienen alerta activa en Contratos v2</li>
       <li><span>›</span>La verificación se actualiza con el cron diario a las 06:00 AR</li>
     </ul>
-    <div class="man-tip">Para agregar un CUIT nuevo: editá <code>matcher/fuzzy_match.py</code> → dict CUITS_CONOCIDOS.</div>
+    <div class="man-tip">Para agregar un CUIT nuevo: editá <code>data/ocde_seed.py</code> (campo cuits_ar de la empresa) y recargá con <code>utils/reseed.py</code>.</div>
   </div>
 
   <div class="man-card">
     <div class="man-title"><div class="man-num">4</div>Cruce CUIT — verificación en tiempo real</div>
     <div class="man-body">Ingresá cualquier CUIT de proveedor del Estado para verificar si pertenece a una empresa sancionada internacionalmente. Responde en &lt;10ms. Este es el endpoint que consumen los otros 8 monitores.</div>
     <ul class="man-steps">
-      <li><span>›</span>Ingresá el CUIT con o sin guiones: <code style="font-family:var(--mono);font-size:10px">30-54667581-3</code> o <code style="font-family:var(--mono);font-size:10px">30546675813</code></li>
+      <li><span>›</span>Ingresá el CUIT con o sin guiones: <code style="font-family:var(--mono);font-size:10px">33-71657893-9</code> o <code style="font-family:var(--mono);font-size:10px">33716578939</code></li>
       <li><span>›</span>Resultado verde → sin antecedentes OCDE</li>
       <li><span>›</span>Resultado rojo → sancionada, muestra caso, año y monto total</li>
-      <li><span>›</span>Ejemplos para probar: Siemens <code style="font-family:var(--mono);font-size:10px">30-54667581-3</code> · SAP <code style="font-family:var(--mono);font-size:10px">30-69142665-7</code> · ABB <code style="font-family:var(--mono);font-size:10px">30-57655868-3</code></li>
+      <li><span>›</span>Ejemplos para probar: Siemens <code style="font-family:var(--mono);font-size:10px">33-71657893-9</code> · SAP <code style="font-family:var(--mono);font-size:10px">30-68516370-1</code> · ABB <code style="font-family:var(--mono);font-size:10px">30-50394816-4</code></li>
     </ul>
-    <code class="man-code">GET /api/cruce-compr?cuit=30-54667581-3</code>
+    <code class="man-code">GET /api/cruce-compr?cuit=33-71657893-9</code>
     <div class="man-tip">Los otros monitores llaman este endpoint para inyectar el flag "sancionada_ocde" en sus tablas de proveedores.</div>
   </div>
 
@@ -779,7 +779,7 @@
       <li><span>›</span>Alerta naranja → empresa con sanción &lt;USD 500M</li>
       <li><span>›</span>Plataforma indica qué monitor debe mostrar la alerta (contratos_v2, iri, ejecutivo)</li>
       <li><span>›</span>El cron regenera alertas diariamente a las 06:00 hora Argentina</li>
-      <li><span>›</span>Para forzar actualización manual: <code style="font-family:var(--mono);font-size:10px">POST /api/cron?token=dev</code></li>
+      <li><span>›</span>Para forzar actualización manual: <code style="font-family:var(--mono);font-size:10px">POST /api/cron?token=&lt;REFRESH_TOKEN&gt;</code> (la clave se configura en Railway)</li>
     </ul>
     <div class="man-tip">Las alertas amarillas (baja) están reservadas para expansión futura con más CUITs verificados.</div>
   </div>
@@ -807,20 +807,20 @@
       <li><span>›</span>Se ejecuta como BackgroundScheduler en el mismo proceso que FastAPI</li>
       <li><span>›</span>Railway reinicia el servicio en cada deploy → cron arranca automáticamente</li>
     </ul>
-    <code class="man-code">POST /api/cron?token=dev  →  forzar ahora</code>
+    <code class="man-code">POST /api/cron?token=&lt;REFRESH_TOKEN&gt;  →  forzar ahora</code>
     <div class="man-tip">Para modo daemon local descomentar scheduler.start() al final de cron.py.</div>
   </div>
 
   <div class="man-card">
     <div class="man-title"><div class="man-num">8</div>Metodología y fuentes</div>
-    <div class="man-body">Los datos base provienen del informe OCDE 2026 "Sanctioning foreign bribery through multijurisdictional resolutions". Los scrapers del DOJ, SFO y PNF agregan casos nuevos incrementalmente.</div>
+    <div class="man-body">Los datos base provienen del informe OCDE 2026 "Sanctioning foreign bribery through multijurisdictional resolutions". Los scrapers del DOJ, SFO y PNF detectan casos nuevos; se cargan en la base a mano, después de verificarlos.</div>
     <ul class="man-steps">
-      <li><span>›</span>Seed estático: 31 casos OCDE · 73 resoluciones · cargado en startup</li>
+      <li><span>›</span>Seed estático: los 31 casos de la OCDE con sus resoluciones principales (73 de las 114 del informe) · cargado en startup</li>
       <li><span>›</span>Scraper DOJ: RSS + HTML press releases FCPA (diario)</li>
       <li><span>›</span>Scraper SFO: DPA documents sfo.gov.uk (semanal)</li>
       <li><span>›</span>Scraper PNF: CJIPs tribunal-de-paris.justice.fr (semanal)</li>
       <li><span>›</span>Matcher: CUIT exacto primero · RapidFuzz token_sort_ratio umbral 80</li>
-      <li><span>›</span>Montos normalizados a USD constantes 2024 para comparabilidad</li>
+      <li><span>›</span>Montos por caso: totales globales anunciados, en USD nominales. Total OCDE: más de USD 33.700M (USD constantes 2024)</li>
     </ul>
     <div class="man-tip">Referencia académica: Monteverde, V.H. (2021). Journal of Financial Crime, Vol. 28 No. 2, pp. 580-592. DOI: 10.1108/JFC-03-2020-0054</div>
   </div>
@@ -1027,6 +1027,10 @@ async function cargarResumen() {
   if (!d) return;
   document.getElementById('kpi-casos').textContent = d.total_casos;
   document.getElementById('kpi-res').textContent = d.total_resoluciones;
+  const oc = d.informe_ocde || {};
+  if (oc.resoluciones) document.getElementById('kpi-res-sub').textContent = 'de ' + oc.resoluciones + ' según la OCDE';
+  if (oc.sanciones_usd_millones_constantes_2024) document.getElementById('kpi-monto-sub').textContent =
+    'OCDE: más de USD ' + (oc.sanciones_usd_millones_constantes_2024/1000).toFixed(1).replace('.', ',') + 'B (USD 2024)';
   document.getElementById('kpi-ar').textContent = d.con_presencia_argentina;
   const m = d.monto_total_usd_millones;
   document.getElementById('kpi-monto').textContent = m >= 1000 ? (m/1000).toFixed(1) + 'B' : m.toFixed(0) + 'M';

@@ -10,7 +10,9 @@ Novena plataforma del [Mapa de Transparencia del Estado Argentino](https://mapat
 
 El MEACI monitorea empresas con presencia en Argentina que han sido sancionadas en casos internacionales de corrupción transnacional (resoluciones multijurisdiccionales — MJRs), basándose en los datos del informe OCDE 2026 *"Sanctioning foreign bribery through multijurisdictional resolutions"*.
 
-**Datos de base:** 31 casos MJR · 73 resoluciones · 12 países · USD 24.670,2M en sanciones (2008–2026)
+**Según la OCDE:** 31 casos MJR · 114 resoluciones · 12 jurisdicciones · más de USD 33.700M en sanciones (USD constantes 2024, dic-2008 a mar-2026).
+
+**Base del MEACI:** los 31 casos con sus resoluciones principales (73 cargadas) y el monto global anunciado de cada caso en USD nominales (suma: USD 24.670,2M). No es comparable con el total de la OCDE, que está en USD constantes 2024 y cuenta las 114 resoluciones.
 
 ---
 

@@ -35,7 +35,7 @@ class Caso(Base):
     nombre_caso      = Column(String(200), nullable=False, index=True)
     anio_resolucion  = Column(Integer, index=True)
     fuente           = Column(String(50))          # DOJ / SFO / PNF / OCDE
-    monto_total_usd  = Column(Float)               # USD constantes 2024
+    monto_total_usd  = Column(Float)               # USD millones, monto global anunciado (nominal, año de la resolución)
     tipo_resolucion  = Column(String(100))         # DPA / NPA / Plea / CJIP / Leniency / mix
     paises           = Column(String(300))         # separados por " · "
     estado           = Column(String(30), default="cerrado")  # cerrado / activo / consecutivo

@@ -26,12 +26,23 @@ EMPRESAS_OCDE_AR = {
     "Odebrecht": ["CNO S.A.", "Constructora Norberto Odebrecht", "CNO Argentina"],
 }
 
-# CUIT conocidos (completar con verificación AFIP)
+# CUIT verificados (jul-2026) — los mismos que data/ocde_seed.py (cuits_ar).
+# Los anteriores (30-54667581-3 Siemens, 30-57655868-3 ABB, 30-69142665-7 SAP,
+# 30-70881733-1 CNO) no se correspondían con las filiales y se reemplazaron.
 CUITS_CONOCIDOS = {
-    "30-54667581-3": "Siemens",
-    "30-57655868-3": "ABB",
-    "30-69142665-7": "SAP",
-    "30-70881733-1": "Odebrecht / CNO",
+    "33-71657893-9": "Siemens",
+    "30-50394816-4": "ABB",
+    "30-71626276-2": "Airbus",
+    "30-63069237-3": "Odebrecht / CNO",
+    "30-69121544-6": "Braskem",
+    "30-70858748-2": "Rolls-Royce",
+    "30-68075354-3": "Goldman Sachs",
+    "30-68516370-1": "SAP",
+    "30-70872481-1": "McKinsey",
+    "33-50170702-9": "Teva",
+    "30-58052350-8": "Honeywell",
+    "30-69903049-6": "Credit Suisse",
+    "30-58518052-8": "Glencore",
 }
 
 

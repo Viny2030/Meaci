@@ -1,29 +1,27 @@
 {
   "generado": "2026-06-04T12:26:31.005342+00:00",
-  "total_cuits": 22,
+  "total_cuits": 20,
   "cuits": [
     "20185806864",
     "20200108664",
     "20244989390",
     "23206080469",
-    "30500662704",
-    "30546675813",
-    "30576558683",
+    "30503948164",
+    "30580523508",
+    "30585180528",
+    "30630692373",
     "30680746032",
-    "30684949171",
-    "30685324085",
-    "30691426657",
-    "30691653551",
-    "30707340023",
-    "30708018599",
-    "30708064040",
-    "30708817331",
-    "30709794099",
-    "30710255881",
-    "30710408502",
-    "30711732557",
+    "30680753543",
+    "30685163701",
+    "30691215446",
+    "30699030496",
+    "30708587482",
+    "30708724811",
     "30712314156",
-    "30715339176"
+    "30715339176",
+    "30716262762",
+    "33501707029",
+    "33716578939"
   ],
   "detalle": [
     {
@@ -62,79 +60,69 @@
       "fuente": "OFAC-SDN"
     },
     {
-      "cuit": "30546675813",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30503948164",
+      "nombre": "ABB",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30576558683",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30580523508",
+      "nombre": "Honeywell",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30708817331",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30585180528",
+      "nombre": "Glencore",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30691426657",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30630692373",
+      "nombre": "Odebrecht / CNO",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30710408502",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30680753543",
+      "nombre": "Goldman Sachs",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30709794099",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30685163701",
+      "nombre": "SAP",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30710255881",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30691215446",
+      "nombre": "Braskem",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30708064040",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30699030496",
+      "nombre": "Credit Suisse",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30711732557",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30708587482",
+      "nombre": "Rolls-Royce",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30691653551",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30708724811",
+      "nombre": "McKinsey",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30684949171",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "30716262762",
+      "nombre": "Airbus",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30500662704",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "33501707029",
+      "nombre": "Teva",
+      "fuente": "filial-verificada-2026-07"
     },
     {
-      "cuit": "30707340023",
-      "nombre": "",
-      "fuente": "extra-local"
-    },
-    {
-      "cuit": "30708018599",
-      "nombre": "",
-      "fuente": "extra-local"
-    },
-    {
-      "cuit": "30685324085",
-      "nombre": "",
-      "fuente": "extra-local"
+      "cuit": "33716578939",
+      "nombre": "Siemens",
+      "fuente": "filial-verificada-2026-07"
     }
   ],
   "sin_cuit_para_revision": [
@@ -158,5 +146,7 @@
       "nombre": "26412",
       "fuente": "OFAC-SDN"
     }
-  ]
+  ],
+  "actualizado": "2026-10-11",
+  "nota": "Filiales: CUITs verificados jul-2026 (data/ocde_seed.py). OFAC-SDN: el campo \"nombre\" es el ID de la entrada en la lista SDN del Tesoro de EE. UU."
 }

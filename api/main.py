@@ -220,6 +220,21 @@ async def root():
 
 # ── RESUMEN GLOBAL ────────────────────────────────────────────────────────────
 
+# OCDE (2026), "Sanctioning foreign bribery through multijurisdictional
+# resolutions", publicado el 25-may-2026 (resumen ejecutivo y sección 4.3.6).
+INFORME_OCDE = {
+    "casos": 31,
+    "resoluciones": 114,
+    "resoluciones_no_judiciales": 113,
+    "jurisdicciones": 12,
+    "entidades_sancionadas_min": 74,
+    "sanciones_usd_millones_constantes_2024": 33700,
+    "lado_demanda_usd_millones_constantes_2024": 12600,
+    "periodo": "dic-2008 a mar-2026",
+    "url": "https://www.oecd.org/en/publications/sanctioning-foreign-bribery-through-multijurisdictional-resolutions_48ff398e-en.html",
+}
+
+
 @app.get("/api/resumen", tags=["Resumen"])
 def resumen(db: Session = Depends(get_db)):
     total_casos       = db.query(Caso).count()
@@ -236,7 +251,14 @@ def resumen(db: Session = Depends(get_db)):
         "total_resoluciones": total_resoluciones,
         "monto_total_usd_millones": round(monto_total, 1),
         "alertas_activas": alertas_activas,
-        "nota": "Monto en USD constantes 2024. Fuente: OCDE 2026.",
+        # Cifras oficiales del informe (para no confundirlas con lo cargado acá)
+        "informe_ocde": INFORME_OCDE,
+        "nota": (
+            "total_resoluciones y monto_total_usd_millones describen la base del MEACI: "
+            "resoluciones cargadas y suma de los montos globales anunciados por caso, en USD "
+            "nominales del año de cada resolución. Las cifras oficiales de la OCDE (en USD "
+            "constantes 2024) están en 'informe_ocde'."
+        ),
     }
 
 

@@ -25,11 +25,12 @@ from bs4 import BeautifulSoup
 
 # ── Filiales argentinas conocidas ──────────────────────────────────────────────
 # (empresa_matriz, nombre_filial_ar, cuit_conocido_o_None)
+# CUIT corregidos 2026-10 con los verificados en data/ocde_seed.py
 FILIALES = [
-    ("Siemens AG",                          "Siemens S.A. Argentina",                   "30546675813"),
-    ("ABB Ltd",                             "ABB S.A. Argentina",                        "30576558683"),
-    ("Odebrecht S.A.",                      "CNO S.A. (ex Constructora Norberto Odebrecht)", "30708817331"),
-    ("SAP SE",                              "SAP Argentina S.A.",                        "30691426657"),
+    ("Siemens AG",                          "Siemens S.A. Argentina",                   "33716578939"),
+    ("ABB Ltd",                             "ABB S.A. Argentina",                        "30503948164"),
+    ("Odebrecht S.A.",                      "CNO S.A. (ex Constructora Norberto Odebrecht)", "30630692373"),
+    ("SAP SE",                              "SAP Argentina S.A.",                        "30685163701"),
     # Sin CUIT — hay que buscar:
     ("Airbus SE",                           "Airbus Argentina SRL",                      None),
     ("Braskem S.A.",                        "Braskem Idesa Argentina",                   None),
