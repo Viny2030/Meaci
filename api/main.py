@@ -192,8 +192,19 @@ async def lifespan(app: FastAPI):
         id="ciclo_diario",
         replace_existing=True,
     )
+    # Alertas al arrancar: si la base es efímera (SQLite dentro del contenedor),
+    # cada deploy la recrea vacía y las alertas recién volvían a las 06:00.
+    db = SessionLocal()
+    try:
+        scheduler_alertas = db.query(Alerta).count() == 0
+    finally:
+        db.close()
+
     # Una revisión de novedades al arrancar (en segundo plano, no demora el inicio)
-    if os.getenv("MEACI_NOVEDADES_AL_INICIAR", "1") == "1":
+    if scheduler_alertas:
+        # El ciclo completo genera las alertas y además revisa novedades
+        scheduler.add_job(_run_cron, id="ciclo_inicio", replace_existing=True)
+    elif os.getenv("MEACI_NOVEDADES_AL_INICIAR", "1") == "1":
         scheduler.add_job(_novedades_al_iniciar, id="novedades_inicio", replace_existing=True)
     scheduler.start()
     logging.getLogger("meaci").info("[scheduler] Cron diario activo — dispara a las 06:00 AR")
