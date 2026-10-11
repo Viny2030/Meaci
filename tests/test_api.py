@@ -197,3 +197,13 @@ def test_cron_sin_token_configurado(monkeypatch):
     monkeypatch.delenv("REFRESH_TOKEN", raising=False)
     r = client.post("/api/cron?token=dev")
     assert r.status_code == 503
+
+
+def test_marcar_novedad_sin_token(monkeypatch):
+    monkeypatch.delenv("REFRESH_TOKEN", raising=False)
+    r = client.post("/api/novedades/1?estado=descartado&token=x")
+    assert r.status_code == 503
+
+
+def test_health_informa_base():
+    assert "base" in client.get("/health").json()

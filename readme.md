@@ -56,6 +56,21 @@ python -m data.ocde_seed
 
 ---
 
+## Producción: base Postgres en Railway
+
+Sin `DATABASE_URL` la app usa SQLite dentro del contenedor y la base se borra en
+cada deploy (se vuelve a cargar el seed, pero se pierden las novedades revisadas).
+Para que persista:
+
+1. En el proyecto de Railway: **New → Database → PostgreSQL**.
+2. En el servicio de MEACI → **Variables**: `DATABASE_URL = ${{Postgres.DATABASE_URL}}`
+   y `REFRESH_TOKEN = <una clave propia>`.
+3. Al redeployar, la app crea las tablas y carga los 31 casos sola. `GET /health`
+   muestra `"base": "postgres"`.
+
+Para marcar una novedad revisada:
+`POST /api/novedades/{id}?estado=descartado&token=<REFRESH_TOKEN>` (o `cargado`).
+
 ## API
 
 | Endpoint | Descripción |

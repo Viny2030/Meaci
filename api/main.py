@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 
 from .models import (
-    get_db, crear_tablas, SessionLocal,
+    get_db, crear_tablas, SessionLocal, DATABASE_URL,
     Caso, Empresa, Resolucion, PresenciaAR, Alerta, Novedad
 )
 
@@ -500,6 +500,7 @@ def health(db: Session = Depends(get_db)):
         "status": "ok",
         "casos": db.query(Caso).count(),
         "empresas": db.query(Empresa).count(),
+        "base": "postgres" if DATABASE_URL.startswith("postgresql") else "sqlite (se borra en cada deploy)",
     }
 
 
@@ -513,14 +514,9 @@ def ejecutar_cron_manual(
     Dispara el ciclo diario manualmente sin esperar las 06:00.
     Requiere el REFRESH_TOKEN configurado en las variables de entorno.
     """
-    import hmac
-    esperado = os.getenv("REFRESH_TOKEN", "")
     # Sin REFRESH_TOKEN en Railway el endpoint queda deshabilitado (antes
     # aceptaba "dev", publicado en el manual de la página).
-    if not esperado or esperado == "dev":
-        raise HTTPException(status_code=503, detail="Endpoint deshabilitado: configurá REFRESH_TOKEN")
-    if not hmac.compare_digest(token, esperado):
-        raise HTTPException(status_code=403, detail="Token inválido")
+    _verificar_token(token)
     try:
         _run_cron()
         return {"status": "ok", "mensaje": "Ciclo diario ejecutado"}
@@ -567,6 +563,35 @@ def listar_novedades(estado: Optional[str] = "pendiente", db: Session = Depends(
             for n in q.order_by(Novedad.anio.desc(), Novedad.id.desc()).all()
         ],
     }
+
+
+def _verificar_token(token: str):
+    import hmac
+    esperado = os.getenv("REFRESH_TOKEN", "")
+    if not esperado or esperado == "dev":
+        raise HTTPException(status_code=503, detail="Endpoint deshabilitado: configurá REFRESH_TOKEN")
+    if not hmac.compare_digest(token or "", esperado):
+        raise HTTPException(status_code=403, detail="Token inválido")
+
+
+@app.post("/api/novedades/{novedad_id}", tags=["Novedades"])
+def marcar_novedad(
+    novedad_id: int,
+    estado: str = Query(..., description="pendiente / cargado / descartado"),
+    token: str = Query(..., description="REFRESH_TOKEN de Railway"),
+    db: Session = Depends(get_db),
+):
+    """Marca una novedad como revisada. Con Postgres el estado se conserva
+    entre despliegues; con SQLite dentro del contenedor se pierde."""
+    _verificar_token(token)
+    if estado not in ("pendiente", "cargado", "descartado"):
+        raise HTTPException(status_code=422, detail="estado debe ser pendiente, cargado o descartado")
+    n = db.query(Novedad).filter(Novedad.id == novedad_id).first()
+    if not n:
+        raise HTTPException(status_code=404, detail="Novedad no encontrada")
+    n.estado = estado
+    db.commit()
+    return {"id": n.id, "empresa": n.empresa, "estado": n.estado}
 
 
 @app.get("/api/meaci-stats", tags=["Cruces"])
