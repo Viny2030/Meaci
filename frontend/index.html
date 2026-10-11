@@ -361,7 +361,7 @@
     <span class="count" id="count-novedades">cargando...</span>
   </div>
   <div class="aviso">
-    Resoluciones corporativas publicadas por el DOJ (EE. UU.) desde 2025 que todavía no están en la base. Se detectan solas todos los días; no se cargan como casos hasta verificar que sean resoluciones multijurisdiccionales.
+    Resoluciones corporativas publicadas desde 2025 por el DOJ (EE. UU.) y la SFO (Reino Unido) que todavía no están en la base. Se detectan solas todos los días; no se cargan como casos hasta verificar que sean resoluciones multijurisdiccionales.
   </div>
   <div class="table-wrap" id="novedades-contenedor">
     <div class="loading">Cargando novedades...</div>
@@ -818,7 +818,7 @@
     <ul class="man-steps">
       <li><span>›</span>Job 1 — Verifica CUITs contra COMPR.AR (fase 1: log · fase 2: escribe DB)</li>
       <li><span>›</span>Job 2 — Genera alertas para empresas sin alerta activa del mismo tipo</li>
-      <li><span>›</span>Job 3 — Busca resoluciones nuevas del DOJ (desde 2025) que no están en la base y las lista en la pestaña Novedades (<code style="font-family:var(--mono);font-size:10px">GET /api/novedades</code>). No las carga como casos</li>
+      <li><span>›</span>Job 3 — Busca resoluciones nuevas del DOJ y la SFO (desde 2025) que no están en la base y las lista en la pestaña Novedades (<code style="font-family:var(--mono);font-size:10px">GET /api/novedades</code>). No las carga como casos</li>
       <li><span>›</span>Se ejecuta como BackgroundScheduler en el mismo proceso que FastAPI</li>
       <li><span>›</span>Railway reinicia el servicio en cada deploy → cron arranca automáticamente</li>
     </ul>
@@ -832,7 +832,8 @@
     <ul class="man-steps">
       <li><span>›</span>Seed estático: los 31 casos de la OCDE con sus resoluciones principales (73 de las 114 del informe) · cargado en startup</li>
       <li><span>›</span>DOJ: listado de Corporate Enforcement Actions (diario en la app + resumen semanal en GitHub Actions) → pestaña Novedades</li>
-      <li><span>›</span>SFO y PNF: los listados conocidos están en scraper/sfo.py y scraper/pnf.py; sus páginas cambiaron y no se consultan automáticamente</li>
+      <li><span>›</span>SFO (Reino Unido): DPAs vía la API de contenido de gov.uk (diario) → pestaña Novedades</li>
+      <li><span>›</span>PNF (Francia): el listado oficial de CJIP mezcla casos ambientales, fiscales y municipales con soborno trasnacional; no se consulta automáticamente para no llenar Novedades de casos ajenos</li>
       <li><span>›</span>Matcher: CUIT exacto primero · RapidFuzz token_sort_ratio umbral 80</li>
       <li><span>›</span>Montos por caso: totales globales anunciados, en USD nominales. Total OCDE: más de USD 33.700M (USD constantes 2024)</li>
     </ul>
@@ -1233,11 +1234,11 @@ async function cargarNovedades() {
   document.getElementById('count-novedades').textContent = lista.length + ' por revisar' + rev;
   const cont = document.getElementById('novedades-contenedor');
   if (d.error) {
-    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">No se pudo consultar el DOJ en la última revisión. Se reintenta en el próximo ciclo diario.</div>';
+    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">No se pudieron consultar las fuentes en la última revisión. Se reintenta en el próximo ciclo diario.</div>';
     if (!lista.length) return;
   }
   if (!lista.length) {
-    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">Sin novedades: todo lo publicado por el DOJ desde 2025 ya está en la base o corresponde a empresas ya cargadas.</div>';
+    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">Sin novedades: todo lo publicado por el DOJ y la SFO desde 2025 ya está en la base o corresponde a empresas ya cargadas.</div>';
     return;
   }
   const esc = t => String(t || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));

@@ -30,10 +30,10 @@ def main() -> int:
     urls = {r.get("url_fuente") for c in CASOS_OCDE for r in c["resoluciones"] if r.get("url_fuente")}
     novedades = detectar_novedades(nombres, urls)
 
-    lineas = [f"## MEACI — novedades del DOJ (desde {ANIO_MINIMO}) que no están en la base", ""]
+    lineas = [f"## MEACI — novedades del DOJ (EE. UU.) y la SFO (Reino Unido) desde {ANIO_MINIMO} que no están en la base", ""]
     if novedades:
         for n in novedades:
-            lineas.append(f"- [{n['anio']}] **{n['empresa']}** — {n['url']}")
+            lineas.append(f"- [{n['anio']}] {n['fuente']} · **{n['empresa']}** — {n['url']}")
         lineas += ["", "Revisar si son casos multijurisdiccionales antes de cargarlos en data/ocde_seed.py."]
     else:
         lineas.append("Sin novedades.")

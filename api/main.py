@@ -121,7 +121,8 @@ def _run_cron():
         )
 
         # 3. Casos nuevos del DOJ: se GUARDAN en la tabla "novedades" para
-        #    revisión (visible en /api/novedades y en la página). No se cargan
+        #    revisión, junto con los DPAs de la SFO (visible en /api/novedades y en
+    #    la página). No se cargan
         #    como casos: eso sigue siendo manual, después de verificar.
         _detectar_novedades(db, log)
     except Exception as e:
@@ -547,7 +548,7 @@ def cruce_cuits_bulk(
 
 @app.get("/api/novedades", tags=["Novedades"])
 def listar_novedades(estado: Optional[str] = "pendiente", db: Session = Depends(get_db)):
-    """Casos publicados por el DOJ (desde 2025) que no están en la base del MEACI.
+    """Casos publicados por el DOJ y la SFO (desde 2025) que no están en la base del MEACI.
     Son candidatos a revisar: pueden no ser casos multijurisdiccionales."""
     q = db.query(Novedad)
     if estado:

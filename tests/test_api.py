@@ -207,3 +207,23 @@ def test_marcar_novedad_sin_token(monkeypatch):
 
 def test_health_informa_base():
     assert "base" in client.get("/health").json()
+
+
+def test_novedades_sfo_extrae_empresa(monkeypatch):
+    import scraper.novedades as nv
+
+    class R:
+        def __init__(self, d): self._d = d
+        def raise_for_status(self): pass
+        def json(self): return self._d
+
+    coleccion = {"links": {"documents": [
+        {"title": "SFO DPA with Ultra Electronics Holdings Limited", "base_path": "/x/ultra", "api_path": "/api/x/ultra"},
+        {"title": "SFO Deferred Prosecution Agreement with Airbus", "base_path": "/x/airbus", "api_path": "/api/x/airbus"},
+    ]}}
+    def fake_get(url, **kw):
+        return R(coleccion) if url == nv.SFO_COLECCION else R({"first_published_at": "2026-05-01T00:00:00Z"})
+    monkeypatch.setattr(nv.httpx, "get", fake_get)
+    out = nv._novedades_sfo([nv._norm("Airbus SE")], set())
+    assert [n["empresa"] for n in out] == ["Ultra Electronics Holdings Limited"]
+    assert out[0]["anio"] == 2026

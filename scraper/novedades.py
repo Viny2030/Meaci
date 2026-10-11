@@ -1,6 +1,7 @@
 """
 scraper/novedades.py
-Detecta resoluciones corporativas nuevas publicadas por el DOJ (FCPA) que no
+Detecta resoluciones corporativas nuevas publicadas por el DOJ (EE. UU., FCPA)
+y por la SFO (Reino Unido, DPAs vía la API de contenido de gov.uk) que no
 están en la base del MEACI. NO carga nada en casos/empresas/resoluciones: la
 carga sigue siendo manual, después de verificar que sea un caso
 multijurisdiccional (ver data/ocde_seed.py). Así se evita el problema de
@@ -19,7 +20,16 @@ import unicodedata
 
 from rapidfuzz import fuzz
 
+import logging
+
+import httpx
+
 from scraper.doj import obtener_casos_recientes
+
+log = logging.getLogger(__name__)
+
+GOVUK = "https://www.gov.uk"
+SFO_COLECCION = GOVUK + "/api/content/government/collections/sfo-deferred-prosecution-agreements"
 
 ANIO_MINIMO = 2025
 
@@ -60,9 +70,7 @@ def _coincide(nombre: str, conocidos: list[list[str]]) -> bool:
     return False
 
 
-def detectar_novedades(nombres_conocidos: list[str], urls_conocidas: set[str],
-                       limite: int = 40) -> list[dict]:
-    conocidos = [_norm(n) for n in nombres_conocidos]
+def _novedades_doj(conocidos, urls_conocidas, limite):
     salida = []
     for c in obtener_casos_recientes(limite=limite):
         anio = int(c["fecha"]) if str(c.get("fecha", "")).isdigit() else 0
@@ -71,11 +79,50 @@ def detectar_novedades(nombres_conocidos: list[str], urls_conocidas: set[str],
         empresa = empresa_desde_titulo(c["titulo"])
         if _coincide(empresa, conocidos):
             continue
-        salida.append({
-            "fuente": "DOJ",
-            "titulo": c["titulo"],
-            "empresa": empresa,
-            "anio": anio,
-            "url": c["url"],
-        })
+        salida.append({"fuente": "DOJ", "titulo": c["titulo"], "empresa": empresa,
+                       "anio": anio, "url": c["url"]})
+    return salida
+
+
+def _novedades_sfo(conocidos, urls_conocidas):
+    """DPAs de la SFO. La colección de gov.uk es JSON estable (la web de la SFO
+    cambió y el scraper HTML de scraper/sfo.py dejó de funcionar)."""
+    salida = []
+    r = httpx.get(SFO_COLECCION, timeout=30, follow_redirects=True)
+    r.raise_for_status()
+    for d in r.json().get("links", {}).get("documents", []):
+        url = GOVUK + d.get("base_path", "")
+        if url in urls_conocidas or d.get("withdrawn"):
+            continue
+        titulo = d.get("title", "")
+        empresa = re.sub(r"^SFO\s+(Deferred Prosecution Agreement|DPA)\s+with\s+", "", titulo, flags=re.I).strip()
+        if _coincide(empresa, conocidos):
+            continue
+        anio = 0
+        try:
+            det = httpx.get(GOVUK + d["api_path"], timeout=30).json()
+            anio = int(str(det.get("first_published_at") or d.get("public_updated_at") or "0")[:4])
+        except Exception:
+            anio = int(str(d.get("public_updated_at") or "0")[:4] or 0)
+        if anio < ANIO_MINIMO:
+            continue
+        salida.append({"fuente": "SFO", "titulo": titulo, "empresa": empresa, "anio": anio, "url": url})
+    return salida
+
+
+def detectar_novedades(nombres_conocidos: list[str], urls_conocidas: set[str],
+                       limite: int = 40) -> list[dict]:
+    """Junta las novedades de todas las fuentes. Si una fuente falla, sigue con
+    las demás (y lo deja en el log); si fallan todas, levanta el último error."""
+    conocidos = [_norm(n) for n in nombres_conocidos]
+    salida, errores = [], []
+    for nombre, fn in (("DOJ", lambda: _novedades_doj(conocidos, urls_conocidas, limite)),
+                       ("SFO", lambda: _novedades_sfo(conocidos, urls_conocidas))):
+        try:
+            salida += fn()
+        except Exception as e:
+            log.warning(f"[novedades] {nombre} no disponible: {e}")
+            errores.append(e)
+    if errores and len(errores) == 2:
+        raise errores[-1]
     return salida
