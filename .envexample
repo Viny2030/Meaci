@@ -14,8 +14,8 @@ REFRESH_TOKEN=dev
 
 # ── URLS DE LAS OTRAS PLATAFORMAS (para inyectar alertas) ────────────────────
 # Dejar en blanco si no están disponibles — el MEACI funciona igual sin ellas
-CONTRATOS_V2_API_URL=https://monitorcontratos-production.up.railway.app
-CONTRATOS_V1_API_URL=https://gobbocomprartgn-production.up.railway.app
-EJECUTIVO_API_URL=https://jefaturagabinete-production.up.railway.app
-IRI_API_URL=https://monitor-production-f053.up.railway.app
-MAPA_API_URL=https://mapatransparencia-production.up.railway.app
+CONTRATOS_V2_API_URL=https://contratos.ecosistematransparencia.com.ar
+CONTRATOS_V1_API_URL=https://comprar.ecosistematransparencia.com.ar
+EJECUTIVO_API_URL=https://jefatura.ecosistematransparencia.com.ar
+IRI_API_URL=https://monitor.ecosistematransparencia.com.ar
+MAPA_API_URL=https://mapa.ecosistematransparencia.com.ar

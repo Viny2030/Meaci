@@ -2,7 +2,7 @@
 
 **Ph.D. Vicente Humberto Monteverde · Algoritmos contra la Corrupción**
 
-Novena plataforma del [Mapa de Transparencia del Estado Argentino](https://mapatransparencia-production.up.railway.app).
+Novena plataforma del [Mapa de Transparencia del Estado Argentino](https://mapa.ecosistematransparencia.com.ar).
 
 ---
 
