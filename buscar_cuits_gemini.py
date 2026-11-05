@@ -47,7 +47,7 @@ import requests
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 
-MEACI_API = "https://meaci-production.up.railway.app"
+MEACI_API = "https://meaci.ecosistematransparencia.com.ar"
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 PAUSA = 2.0  # segundos entre consultas a Gemini
 
