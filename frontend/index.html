@@ -1208,12 +1208,24 @@ function limpiarCruce() {
 }
 
 async function cargarAlertas() {
-  const data = await fetchJSON('/api/alertas');
+  // Los selectores de nivel y plataforma se pasan a la API, que ya los admite.
+  const nivel = document.getElementById('f-alerta-nivel').value;
+  const plat = document.getElementById('f-alerta-plat').value;
+  const params = new URLSearchParams();
+  if (nivel) params.set('nivel', nivel);
+  if (plat) params.set('plataforma', plat);
+  const qs = params.toString();
+  const data = await fetchJSON('/api/alertas' + (qs ? '?' + qs : ''));
   if (!data) return;
   document.getElementById('count-alertas').textContent = data.length + ' alertas';
   const cont = document.getElementById('alertas-contenedor');
   if (!data.length) {
-    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">Sin alertas activas — el cron diario las genera cuando detecta empresas sancionadas con contratos vigentes.</div>';
+    const msg = (nivel || plat)
+      ? (plat && plat !== 'contratos_v2'
+          ? 'Sin alertas para esta plataforma: por ahora el cron diario solo cruza las empresas sancionadas con Contratos v2.'
+          : 'Sin alertas con estos filtros.')
+      : 'Sin alertas activas — el cron diario las genera cuando detecta empresas sancionadas con contratos vigentes.';
+    cont.innerHTML = '<div style="padding:24px;color:var(--text3);text-align:center;font-size:13px">' + msg + '</div>';
     return;
   }
   cont.innerHTML = data.map(a => `
