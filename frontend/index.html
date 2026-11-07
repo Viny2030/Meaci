@@ -841,6 +841,32 @@
   </div>
 
 </div>
+
+<div id="relaciones" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">🕸️ Relación con los otros sitios del ecosistema</h3>
+  <p>Este sitio es parte del <strong>Ecosistema de Transparencia</strong>: once monitores que se consultan entre sí. Abajo, con qué sitios intercambia datos (<em>usa →</em> = toma datos de ese sitio; <em>← lo usa</em> = ese sitio toma datos de este) y de qué fuentes oficiales se alimenta. El grafo es interactivo: hacé clic en cualquier sitio para ver su ficha.</p>
+  <iframe src="https://mapa.ecosistematransparencia.com.ar/grafo?embed=1&amp;nodo=meaci" title="Relación con los otros sitios del ecosistema" loading="lazy"
+          style="width:100%;height:560px;border:1px solid #cbd5e1;border-radius:10px;background:#fff"></iframe>
+  <p style="font-size:.85em"><a href="https://mapa.ecosistematransparencia.com.ar/grafo" target="_blank" rel="noopener">Abrir el grafo completo ↗</a></p>
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">Conexiones</h3>
+  <ul><li><strong>← lo usa Jefatura</strong>: Consulta en vivo la lista de CUIT sancionadas de MEACI (caché 6 h) para marcar proveedores.</li><li><strong>← lo usa Comprar</strong>: Cruza CUIT de proveedores contra las sancionadas de MEACI y controla que MEACI esté disponible.</li><li><strong>← lo usa Contratos</strong>: Cruza CUIT de proveedores contra las sancionadas de MEACI (/api/cruce-cuits-bulk).</li><li><strong>usa → Monitor IRI</strong> <em>(planificado)</em>: Planificado: aportar alertas internacionales al IRI. Todavía no conectado.</li><li><strong>← lo usa Mapa</strong>: Muestra los KPIs de MEACI y el estado del sitio. La validación cruzada diaria comprueba que Comprar y Contratos reconozcan su lista de CUIT.</li></ul>
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">Fuentes oficiales</h3>
+  <ul><li>Informe OCDE 2026 (MJR)</li><li>DOJ (FCPA), SFO, PNF</li></ul>
+  <p style="font-size:.85em">Detalle de todas las conexiones y de cómo se verifican las cifras entre sitios: <a href="https://mapa.ecosistematransparencia.com.ar/manual#conexiones" target="_blank" rel="noopener">mapa.ecosistematransparencia.com.ar/manual#conexiones</a></p>
+</div>
+
+<div id="relaciones-en" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">🕸️ How this site connects to the rest of the ecosystem</h3>
+  <p>This site is part of the <strong>Transparency Ecosystem</strong>: eleven monitors that query each other. Below, which sites it exchanges data with (<em>uses →</em> = takes data from that site; <em>← used by</em> = that site takes data from this one) and which official sources feed it. The graph is interactive: click any site to see its profile.</p>
+  <iframe src="https://mapa.ecosistematransparencia.com.ar/grafo?embed=1&amp;nodo=meaci&amp;lang=en" title="How this site connects to the rest of the ecosystem" loading="lazy"
+          style="width:100%;height:560px;border:1px solid #cbd5e1;border-radius:10px;background:#fff"></iframe>
+  <p style="font-size:.85em"><a href="https://mapa.ecosistematransparencia.com.ar/grafo?lang=en" target="_blank" rel="noopener">Open the full graph ↗</a></p>
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">Connections</h3>
+  <ul><li><strong>← used by Jefatura</strong>: Queries MEACI's sanctioned-CUIT list live (6 h cache) to flag suppliers.</li><li><strong>← used by Comprar</strong>: Checks supplier CUITs against MEACI's sanctioned list and that MEACI is reachable.</li><li><strong>← used by Contratos</strong>: Checks supplier CUITs against MEACI's sanctioned list (/api/cruce-cuits-bulk).</li><li><strong>uses → Monitor IRI</strong> <em>(planned)</em>: Planned: contribute international alerts to the IRI. Not connected yet.</li><li><strong>← used by Mapa</strong>: Shows MEACI KPIs and site status. The daily cross-validation checks that Comprar and Contratos recognise its CUIT list.</li></ul>
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">Official sources</h3>
+  <ul><li>OECD 2026 report (MJR)</li><li>DOJ (FCPA), SFO, PNF</li></ul>
+  <p style="font-size:.85em">Every connection in detail, and how figures are cross-checked between sites: <a href="https://mapa.ecosistematransparencia.com.ar/en/manual#conexiones" target="_blank" rel="noopener">mapa.ecosistematransparencia.com.ar/en/manual#conexiones</a></p>
+</div>
 </div>
 
 <!-- AUTOR Y DONACIONES -->
