@@ -147,6 +147,7 @@
     <a onclick="showPage('cruce')" id="nav-cruce">Cruce CUIT</a>
     <a onclick="showPage('alertas')" id="nav-alertas">Alertas</a>
     <a onclick="showPage('novedades')" id="nav-novedades">Novedades</a>
+    <a href="/red" id="nav-red">Red de casos</a>
     <a onclick="showPage('legislacion')" id="nav-legislacion">Legislación</a>
     <a onclick="showPage('manual')" id="nav-manual">Manual</a>
   </div>
@@ -842,6 +843,25 @@
 
 </div>
 
+<div id="red-casos" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">🕸️ Red de casos y jurisdicciones</h3>
+  <p>Es el grafo de <strong>información</strong> del sitio (página <a href="/red" style="color:var(--info-text)">Red de casos</a>). Cada <strong>círculo</strong> es uno de los 31 casos de soborno transnacional resueltos en varios países, con el nombre de la empresa sancionada; en <strong style="color:var(--danger-text)">rojo</strong>, las 15 que tienen presencia en Argentina. Cada <strong>cuadrado</strong> es uno de los 12 países que intervinieron.</p>
+  <ul>
+    <li><strong>Línea continua</strong>: el MEACI tiene cargada la resolución de ese país (autoridad, mecanismo y monto). Es más gruesa cuanto mayor es el monto.</li>
+    <li><strong>Línea punteada</strong>: la OCDE registra a ese país en el caso, pero la resolución todavía no está cargada en el MEACI.</li>
+    <li>Al hacer clic en un caso se ven su año, el monto global anunciado, el sector, las filiales en Argentina y, país por país, qué autoridades lo sancionaron y por cuánto. Al hacer clic en un país, sus casos.</li>
+    <li>La casilla "Solo empresas con presencia en Argentina" deja solo esos casos. Botón ES / EN para cambiar el idioma.</li>
+  </ul>
+  <p><strong>Cómo leerla:</strong> Estados Unidos interviene en todos los casos y queda en el centro; los casos con más líneas son los que coordinaron más jurisdicciones. Una sanción internacional a la casa matriz no implica una irregularidad de su filial en Argentina.</p>
+</div>
+
+<div id="funcionamiento" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">⚙️ Cómo funciona este sitio</h3>
+  <p>Grafo de <strong>funcionamiento</strong>: de qué fuentes toma los datos, qué procesos automáticos los transforman, dónde se guardan y qué publica. Cada nodo lleva su nombre; hacé clic en uno para ver de dónde recibe datos y a qué alimenta.</p>
+  <iframe class="grafo-func" src="https://mapa.ecosistematransparencia.com.ar/funcionamiento?sitio=meaci&amp;embed=1" title="Cómo funciona este sitio" loading="lazy" style="width:100%;height:640px;border:1px solid #cbd5e1;border-radius:10px;background:#fff"></iframe>
+  <p style="font-size:.85em"><a href="https://mapa.ecosistematransparencia.com.ar/funcionamiento?sitio=meaci" target="_blank" rel="noopener" style="color:var(--info-text)">Abrir en pantalla completa ↗</a></p>
+</div>
+
 <div id="relaciones" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
   <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">🕸️ Relación con los otros sitios del ecosistema</h3>
   <p>Este sitio es parte del <strong>Ecosistema de Transparencia</strong>: once monitores que se consultan entre sí. Abajo, con qué sitios intercambia datos (<em>usa →</em> = toma datos de ese sitio; <em>← lo usa</em> = ese sitio toma datos de este) y de qué fuentes oficiales se alimenta. El grafo es interactivo: hacé clic en cualquier sitio para ver su ficha.</p>
@@ -853,6 +873,25 @@
   <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">Fuentes oficiales</h3>
   <ul><li>Informe OCDE 2026 (MJR)</li><li>DOJ (FCPA), SFO, PNF</li></ul>
   <p style="font-size:.85em">Detalle de todas las conexiones y de cómo se verifican las cifras entre sitios: <a href="https://mapa.ecosistematransparencia.com.ar/manual#conexiones" target="_blank" rel="noopener">mapa.ecosistematransparencia.com.ar/manual#conexiones</a></p>
+</div>
+
+<div id="red-casos-en" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">🕸️ Cases and jurisdictions network</h3>
+  <p>This is the site's <strong>information</strong> graph (the <a href="/red?lang=en" style="color:var(--info-text)">Red de casos</a> page). Each <strong>circle</strong> is one of the 31 transnational bribery cases resolved in several countries, labelled with the sanctioned company; the 15 with a presence in Argentina are shown in <strong style="color:var(--danger-text)">red</strong>. Each <strong>square</strong> is one of the 12 countries involved.</p>
+  <ul>
+    <li><strong>Solid line</strong>: MEACI has that country's resolution loaded (authority, mechanism and amount). The larger the amount, the thicker the line.</li>
+    <li><strong>Dashed line</strong>: the OECD records that country in the case, but the resolution is not loaded in MEACI yet.</li>
+    <li>Clicking a case shows its year, the announced global amount, the sector, its Argentine subsidiaries and, country by country, which authorities sanctioned it and for how much. Clicking a country shows its cases.</li>
+    <li>The "Only companies with a presence in Argentina" box keeps only those cases. ES / EN button to switch language.</li>
+  </ul>
+  <p><strong>How to read it:</strong> the United States takes part in every case and sits in the centre; the cases with the most lines are those that coordinated the most jurisdictions. An international sanction on the parent company does not imply wrongdoing by its Argentine subsidiary.</p>
+</div>
+
+<div id="funcionamiento-en" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
+  <h3 style="font-size:13px;font-weight:500;color:var(--text);margin:10px 0 6px">⚙️ How this site works</h3>
+  <p><strong>Workflow</strong> graph: where the site gets its data, which automated processes transform it, where it is stored and what it publishes. Every node carries its name; click one to see where it gets data from and what it feeds.</p>
+  <iframe class="grafo-func" src="https://mapa.ecosistematransparencia.com.ar/funcionamiento?sitio=meaci&amp;embed=1&amp;lang=en" title="How this site works" loading="lazy" style="width:100%;height:640px;border:1px solid #cbd5e1;border-radius:10px;background:#fff"></iframe>
+  <p style="font-size:.85em"><a href="https://mapa.ecosistematransparencia.com.ar/funcionamiento?sitio=meaci&amp;lang=en" target="_blank" rel="noopener" style="color:var(--info-text)">Open full screen ↗</a></p>
 </div>
 
 <div id="relaciones-en" class="man-card" style="margin-top:14px;font-size:12px;color:var(--text2);line-height:1.7">
@@ -1308,9 +1347,30 @@ function showPage(id) {
   window.scrollTo(0, 0);
 }
 
+// Abrir una pestaña, o una sección de una pestaña, desde el enlace (#manual, #red-casos, …)
+function abrirDesdeHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) return;
+  if (document.getElementById('page-' + h)) return showPage(h);
+  const el = document.getElementById(h);
+  const pg = el && el.closest('.page');
+  if (pg) { showPage(pg.id.slice(5)); el.scrollIntoView(); }
+}
+window.addEventListener('hashchange', abrirDesdeHash);
+
 // Inicializar
 cargarResumen();
 cargarCasos();
+abrirDesdeHash();
+</script>
+<script>
+// Ajusta el alto de los grafos de funcionamiento incrustados (los informa el Mapa).
+window.addEventListener('message', e => {
+  if (e.origin !== 'https://mapa.ecosistematransparencia.com.ar' || !e.data || !e.data.grafoAltura) return;
+  document.querySelectorAll('iframe.grafo-func').forEach(f => {
+    if (f.contentWindow === e.source) f.style.height = (e.data.grafoAltura + 4) + 'px';
+  });
+});
 </script>
 </body>
 </html>
