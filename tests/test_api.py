@@ -227,3 +227,24 @@ def test_novedades_sfo_extrae_empresa(monkeypatch):
     out = nv._novedades_sfo([nv._norm("Airbus SE")], set())
     assert [n["empresa"] for n in out] == ["Ultra Electronics Holdings Limited"]
     assert out[0]["anio"] == 2026
+
+
+# ── Red de casos y jurisdicciones ─────────────────────────────────────────────
+
+def test_red_casos():
+    r = client.get("/api/red-casos")
+    assert r.status_code == 200
+    d = r.json()
+    res = d["resumen"]
+    assert res["casos"] == 31 and res["jurisdicciones"] == 12 and res["con_presencia_argentina"] == 15
+    ids = {n["id"] for n in d["nodos"]}
+    assert all(a["from"] in ids and a["to"] in ids for a in d["aristas"])
+    assert all(n["label"] for n in d["nodos"])  # todos los nodos con nombre
+    cargadas = [a for a in d["aristas"] if a["tipo"] == "cargada"]
+    assert cargadas and all(a["autoridades"] for a in cargadas)
+    assert res["aristas_cargadas"] + res["aristas_ocde"] == len(d["aristas"])
+
+
+def test_pagina_red():
+    r = client.get("/red")
+    assert r.status_code == 200 and "red-casos" in r.text

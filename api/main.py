@@ -602,5 +602,83 @@ def meaci_stats(db: Session = Depends(get_db)):
         "con_presencia_argentina": db.query(Empresa).filter(Empresa.presencia_argentina == True).count(),
         "fuente": "MEACI-OCDE",
     }
+
+
+# ── RED CASO ↔ JURISDICCIÓN (grafo de información) ────────────────────────────
+
+PAISES_EN = {
+    "Estados Unidos": "United States", "Brasil": "Brazil", "Suiza": "Switzerland",
+    "Reino Unido": "United Kingdom", "Francia": "France", "Países Bajos": "Netherlands",
+    "Sudáfrica": "South Africa", "Alemania": "Germany", "Singapur": "Singapore",
+    "Hong Kong (China)": "Hong Kong (China)", "Malasia": "Malaysia", "Israel": "Israel",
+}
+
+
+def _paises_caso(caso: Caso) -> list:
+    return [p.strip() for p in (caso.paises or "").split("·") if p.strip()]
+
+
+@app.get("/api/red-casos", tags=["Casos"])
+def red_casos(db: Session = Depends(get_db)):
+    """Red de casos y jurisdicciones (frontend/red_casos.html).
+
+    Nodos: cada caso (con su empresa) y cada país que intervino. Aristas:
+    "cargada" si la base tiene la resolución de ese país (autoridades, tipos y
+    monto); "ocde" si la OCDE registra a ese país en el caso pero la resolución
+    todavía no está cargada en el MEACI."""
+    nodos, aristas, por_pais = [], [], {}
+    for caso in db.query(Caso).order_by(Caso.id).all():
+        res = db.query(Resolucion).filter(Resolucion.caso_id == caso.id).all()
+        empresa = db.get(Empresa, res[0].empresa_id) if res else None
+        cid = f"c{caso.id}"
+        paises = _paises_caso(caso)
+        for r in res:  # un país con resolución cargada que no figure en la lista igual cuenta
+            if r.pais and r.pais not in paises:
+                paises.append(r.pais)
+        nodos.append({
+            "id": cid, "tipo": "caso", "label": caso.nombre_caso, "anio": caso.anio_resolucion,
+            "monto_usd_millones": caso.monto_total_usd, "tipo_resolucion": caso.tipo_resolucion,
+            "sector": empresa.sector if empresa else None, "pais_sede": empresa.pais_sede if empresa else None,
+            "presencia_argentina": bool(empresa and empresa.presencia_argentina),
+            "filiales_ar": _json.loads(empresa.filiales_ar or "[]") if empresa else [],
+            "jurisdicciones": len(paises),
+        })
+        for pais in paises:
+            propias = [r for r in res if r.pais == pais]
+            p = por_pais.setdefault(pais, {"casos": 0, "cargadas": 0, "monto": 0.0, "autoridades": set()})
+            p["casos"] += 1
+            arista = {"from": cid, "to": f"p:{pais}", "tipo": "cargada" if propias else "ocde"}
+            if propias:
+                monto = sum(r.monto_usd or 0 for r in propias)
+                autoridades = sorted({r.autoridad for r in propias if r.autoridad})
+                p["cargadas"] += len(propias)
+                p["monto"] += monto
+                p["autoridades"].update(autoridades)
+                arista.update({"resoluciones": len(propias), "autoridades": autoridades,
+                               "tipos": sorted({r.tipo for r in propias if r.tipo}),
+                               "monto_usd_millones": round(monto, 1)})
+            aristas.append(arista)
+    for pais, p in sorted(por_pais.items(), key=lambda x: -x[1]["casos"]):
+        nodos.append({"id": f"p:{pais}", "tipo": "pais", "label": pais, "label_en": PAISES_EN.get(pais, pais),
+                      "casos": p["casos"], "resoluciones_cargadas": p["cargadas"],
+                      "monto_usd_millones": round(p["monto"], 1), "autoridades": sorted(p["autoridades"])})
+    casos = [n for n in nodos if n["tipo"] == "caso"]
+    return {
+        "nodos": nodos, "aristas": aristas,
+        "resumen": {
+            "casos": len(casos), "jurisdicciones": len(por_pais),
+            "con_presencia_argentina": sum(n["presencia_argentina"] for n in casos),
+            "aristas_cargadas": sum(a["tipo"] == "cargada" for a in aristas),
+            "aristas_ocde": sum(a["tipo"] == "ocde" for a in aristas),
+            "fuente": "OCDE (2026), Sanctioning foreign bribery through multijurisdictional resolutions; resoluciones del DOJ, SEC, SFO, PNF y otras autoridades",
+        },
+    }
+
+
+@app.get("/red", include_in_schema=False)
+async def pagina_red():
+    return FileResponse(str(frontend_path / "red_casos.html"))
+
+
 if frontend_path.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")

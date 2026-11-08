@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red de casos · MEACI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/standalone/umd/vis-network.min.js"></script>
+<style>
+:root{--bg:#0a1628;--bg2:#0f2040;--bg3:#162952;--text:#e8f0fe;--text2:#93afd4;--text3:#4e6a8e;--borde:rgba(100,160,255,.25);
+  --rojo:#ff6b6b;--caso:#74b9ff;--pais:#f9ca24;--ocde:#4e6a8e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.55}
+header{background:var(--bg2);border-bottom:1px solid var(--bg3);padding:.7rem 16px;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+header h1{font-size:1.05rem;font-weight:500;flex:1;min-width:220px}
+header a,header button{color:var(--text2);background:transparent;border:1px solid var(--borde);border-radius:14px;padding:.25rem .7rem;font-size:.8rem;text-decoration:none;cursor:pointer}
+header button.activo{background:var(--bg3);color:var(--text)}
+.intro,.controles,.kpis,.leyenda,.cuerpo,.nota{max-width:1200px;margin-left:auto;margin-right:auto;padding:0 16px}
+.intro{margin-top:1rem;font-size:.86rem;color:var(--text2)}
+.controles{margin-top:.8rem;font-size:.85rem;color:var(--text2)}
+.controles label{display:inline-flex;gap:.4rem;align-items:center;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin-top:.8rem}
+.kpi{background:var(--bg2);border:1px solid var(--borde);border-radius:10px;padding:.6rem .8rem}
+.kpi b{display:block;font-size:1.35rem;font-weight:500}
+.kpi span{font-size:.75rem;color:var(--text2)}
+.leyenda{display:flex;flex-wrap:wrap;gap:.4rem 1rem;margin-top:.7rem;font-size:.76rem;color:var(--text2)}
+.leyenda i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:.35rem;vertical-align:-1px}
+.leyenda i.cuad{border-radius:2px}
+.leyenda i.linea{width:18px;height:0;border-radius:0;border-top:2px solid var(--caso);vertical-align:3px}
+.leyenda i.punt{width:18px;height:0;border-radius:0;border-top:2px dashed var(--text2);vertical-align:3px}
+.cuerpo{display:grid;grid-template-columns:1fr 300px;gap:1rem;margin-top:.8rem}
+#red{height:640px;background:var(--bg2);border:1px solid var(--borde);border-radius:12px}
+.panel{background:var(--bg2);border:1px solid var(--borde);border-radius:12px;padding:1rem;font-size:.83rem;margin-bottom:1rem;color:var(--text2)}
+.panel h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.5rem;font-weight:500}
+.panel h3{font-size:1rem;color:var(--text);font-weight:500;margin-bottom:.3rem}
+.panel b{color:var(--text);font-weight:500}
+.panel ul{list-style:none}
+.panel li{padding:.3rem 0;border-bottom:1px solid var(--bg3);cursor:pointer}
+.panel li:last-child{border-bottom:none}
+.panel li:hover{color:var(--text)}
+.ar{color:var(--rojo)}
+.nota{margin-top:.8rem;margin-bottom:1.5rem;font-size:.75rem;color:var(--text3)}
+.error{padding:1.5rem;color:var(--rojo)}
+@media (max-width:820px){.cuerpo{grid-template-columns:1fr}#red{height:520px}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="t-titulo"></h1>
+  <a id="t-volver" href="/"></a>
+  <a id="t-manual" href="/#manual"></a>
+  <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
+</header>
+<p class="intro" id="t-intro"></p>
+<div class="controles"><label><input type="checkbox" id="chk-ar"> <span id="t-soloar"></span></label></div>
+<div class="kpis" id="kpis"></div>
+<div class="leyenda" id="leyenda"></div>
+<div class="cuerpo">
+  <div id="red"></div>
+  <div>
+    <div class="panel"><h2 id="t-detalle"></h2><div id="detalle"></div></div>
+    <div class="panel"><h2 id="t-top"></h2><ul id="top"></ul></div>
+  </div>
+</div>
+<p class="nota" id="t-nota"></p>
+
+<script>
+let LANG = (() => {
+  const q = new URLSearchParams(location.search).get('lang');
+  if (q === 'en' || q === 'es') return q;
+  try { return localStorage.getItem('meaci_lang') === 'en' ? 'en' : 'es'; } catch (e) { return 'es'; }
+})();
+const TX = {
+  es: {
+    titulo: 'Red de casos y jurisdicciones · MEACI', volver: '← Volver al tablero', manual: '📖 Manual',
+    intro: 'Cada círculo es un caso de soborno transnacional resuelto en varios países, con el nombre de la empresa sancionada; en rojo, las que tienen presencia en Argentina. Cada cuadrado es un país que la sancionó. Las líneas continuas son resoluciones cargadas en el MEACI; las punteadas, países que la OCDE registra en el caso pero cuya resolución todavía no está cargada.',
+    soloar: 'Solo empresas con presencia en Argentina',
+    casos: 'Casos', jur: 'Jurisdicciones', ar: 'Con presencia en Argentina', carg: 'Resoluciones por país cargadas', ocde: 'Solo según la OCDE',
+    lcaso: 'Caso (empresa)', lar: 'Caso con presencia en Argentina', lpais: 'País que sancionó', lcarg: 'Resolución cargada', locde: 'Registrada por la OCDE, sin cargar',
+    detalle: 'Detalle', top: 'Casos con más jurisdicciones',
+    ayuda: 'Hacé clic en un caso para ver qué países lo sancionaron, con qué autoridades y por qué monto, o en un país para ver sus casos.',
+    anio: 'Año', monto: 'Monto global anunciado', sector: 'Sector', sede: 'País sede', filiales: 'Filiales en Argentina', tipo: 'Mecanismo',
+    paises: 'Países', sincargar: 'resolución no cargada', ncasos: 'Casos en los que intervino', nres: 'Resoluciones cargadas', autor: 'Autoridades',
+    montop: 'Monto de sus resoluciones cargadas', jurs: 'jurisdicciones', si: 'Sí', no: 'No',
+    nota: 'Fuente: OCDE (2026), "Sanctioning foreign bribery through multijurisdictional resolutions" (31 casos, 114 resoluciones, 12 jurisdicciones) y las resoluciones publicadas por cada autoridad (DOJ, SEC, SFO, PNF, entre otras). Montos en millones de USD nominales del año de la resolución. Los montos por país son los de cada resolución y pueden no sumar el monto global anunciado: hay créditos entre autoridades y resoluciones sin cargar. Una sanción internacional a la casa matriz no implica una irregularidad de su filial en Argentina.',
+    error: 'No se pudo armar la red: ',
+  },
+  en: {
+    titulo: 'Cases and jurisdictions network · MEACI', volver: '← Back to dashboard', manual: '📖 Manual',
+    intro: 'Each circle is a transnational bribery case resolved in several countries, labelled with the sanctioned company; red ones have a presence in Argentina. Each square is a country that sanctioned it. Solid lines are resolutions loaded in MEACI; dashed lines are countries the OECD records in the case whose resolution is not loaded yet.',
+    soloar: 'Only companies with a presence in Argentina',
+    casos: 'Cases', jur: 'Jurisdictions', ar: 'With a presence in Argentina', carg: 'Country resolutions loaded', ocde: 'OECD record only',
+    lcaso: 'Case (company)', lar: 'Case with a presence in Argentina', lpais: 'Sanctioning country', lcarg: 'Resolution loaded', locde: 'Recorded by the OECD, not loaded',
+    detalle: 'Detail', top: 'Cases with the most jurisdictions',
+    ayuda: 'Click a case to see which countries sanctioned it, through which authorities and for how much, or a country to see its cases.',
+    anio: 'Year', monto: 'Announced global amount', sector: 'Sector', sede: 'Headquarters', filiales: 'Subsidiaries in Argentina', tipo: 'Mechanism',
+    paises: 'Countries', sincargar: 'resolution not loaded', ncasos: 'Cases it took part in', nres: 'Resolutions loaded', autor: 'Authorities',
+    montop: 'Amount of its loaded resolutions', jurs: 'jurisdictions', si: 'Yes', no: 'No',
+    nota: 'Source: OECD (2026), "Sanctioning foreign bribery through multijurisdictional resolutions" (31 cases, 114 resolutions, 12 jurisdictions) and the resolutions published by each authority (DOJ, SEC, SFO, PNF, among others). Amounts in millions of nominal USD of the resolution year. Country amounts are those of each resolution and may not add up to the announced global amount: authorities credit each other's payments and some resolutions are not loaded. An international sanction on the parent company does not imply wrongdoing by its Argentine subsidiary.',
+    error: 'The network could not be built: ',
+  },
+};
+const t = k => TX[LANG][k];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const usd = v => v == null ? '—' : 'USD ' + Number(v).toLocaleString(LANG === 'en' ? 'en-US' : 'es-AR', {maximumFractionDigits: 1}) + (LANG === 'en' ? 'M' : ' M');
+let DATOS = null, RED = null, POR_ID = {};
+const nomPais = n => LANG === 'en' ? n.label_en : n.label;
+
+function textos() {
+  document.documentElement.lang = LANG;
+  for (const k of ['titulo', 'volver', 'manual', 'intro', 'soloar', 'detalle', 'top', 'nota']) document.getElementById('t-' + k).textContent = t(k);
+  document.title = t('titulo');
+  document.getElementById('t-manual').href = LANG === 'en' ? '/#red-casos-en' : '/#red-casos';
+  document.querySelectorAll('header button').forEach(b => b.classList.toggle('activo', b.dataset.lang === LANG));
+}
+document.querySelectorAll('header button').forEach(b => b.addEventListener('click', () => {
+  LANG = b.dataset.lang;
+  try { localStorage.setItem('meaci_lang', LANG); } catch (e) {}
+  const u = new URL(location.href); u.searchParams.set('lang', LANG); history.replaceState(null, '', u);
+  textos(); if (DATOS) pintar();
+}));
+
+async function cargar() {
+  try {
+    const r = await fetch('/api/red-casos');
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || ('HTTP ' + r.status));
+    DATOS = d; pintar();
+  } catch (e) {
+    document.getElementById('red').innerHTML = `<div class="error">${esc(t('error') + e.message)}</div>`;
+  }
+}
+
+function pintar() {
+  const r = DATOS.resumen;
+  document.getElementById('kpis').innerHTML = [[r.casos, t('casos')], [r.jurisdicciones, t('jur')], [r.con_presencia_argentina, t('ar')],
+    [r.aristas_cargadas, t('carg')], [r.aristas_ocde, t('ocde')]].map(([n, l]) => `<div class="kpi"><b>${n}</b><span>${l}</span></div>`).join('');
+  document.getElementById('leyenda').innerHTML =
+    `<span><i style="background:var(--caso)"></i>${t('lcaso')}</span><span><i style="background:var(--rojo)"></i>${t('lar')}</span>` +
+    `<span><i class="cuad" style="background:var(--pais)"></i>${t('lpais')}</span><span><i class="linea"></i>${t('lcarg')}</span><span><i class="punt"></i>${t('locde')}</span>`;
+
+  const soloAr = document.getElementById('chk-ar').checked;
+  const casos = DATOS.nodos.filter(n => n.tipo === 'caso' && (!soloAr || n.presencia_argentina));
+  const ids = new Set(casos.map(n => n.id));
+  const aristas = DATOS.aristas.filter(a => ids.has(a.from));
+  const paisesUsados = new Set(aristas.map(a => a.to));
+  POR_ID = {};
+  DATOS.nodos.forEach(n => { POR_ID[n.id] = n; });
+  const nodos = casos.map(n => ({
+    id: n.id, label: n.label, shape: 'dot', size: 7 + Math.sqrt(n.monto_usd_millones || 0) / 6,
+    color: {background: n.presencia_argentina ? '#ff6b6b' : '#74b9ff', border: n.presencia_argentina ? '#c0392b' : '#2980b9'},
+    font: {size: 12, color: '#e8f0fe'}, title: `${n.label} (${n.anio}) — ${usd(n.monto_usd_millones)}`,
+  })).concat(DATOS.nodos.filter(n => n.tipo === 'pais' && paisesUsados.has(n.id)).map(n => ({
+    id: n.id, label: nomPais(n), shape: 'square', size: 9 + Math.sqrt(n.casos) * 3,
+    color: {background: '#f9ca24', border: '#f0c030'}, font: {size: 14, color: '#f9ca24', strokeWidth: 3, strokeColor: '#0f2040'},
+    title: `${nomPais(n)} — ${n.casos} ${t('casos').toLowerCase()}`,
+  })));
+  const ed = aristas.map(a => a.tipo === 'cargada'
+    ? {from: a.from, to: a.to, width: 1 + Math.log10(1 + (a.monto_usd_millones || 0)) / 1.5, color: {color: '#74b9ff', opacity: .55},
+       title: `${a.autoridades.join(', ')} — ${usd(a.monto_usd_millones)}`}
+    : {from: a.from, to: a.to, width: 1, dashes: [4, 4], color: {color: '#93afd4', opacity: .5}, title: t('locde')});
+  if (RED) RED.destroy();
+  RED = new vis.Network(document.getElementById('red'), {nodes: new vis.DataSet(nodos), edges: new vis.DataSet(ed)}, {
+    physics: {solver: 'forceAtlas2Based', forceAtlas2Based: {gravitationalConstant: -60, springLength: 110}, stabilization: {iterations: 400}},
+    interaction: {hover: true}, edges: {smooth: false}});
+  RED.once('stabilizationIterationsDone', () => { RED.setOptions({physics: false}); RED.fit(); });
+  RED.on('click', e => { if (e.nodes.length) detalle(e.nodes[0]); });
+
+  const top = casos.slice().sort((x, y) => y.jurisdicciones - x.jurisdicciones || (y.monto_usd_millones || 0) - (x.monto_usd_millones || 0)).slice(0, 10);
+  const ul = document.getElementById('top');
+  ul.innerHTML = top.map(n => `<li data-id="${esc(n.id)}"><span class="${n.presencia_argentina ? 'ar' : ''}">${esc(n.label)}</span> · <b>${n.jurisdicciones}</b> ${t('jurs')}</li>`).join('');
+  ul.querySelectorAll('li').forEach(li => li.addEventListener('click', () => {
+    RED.selectNodes([li.dataset.id]); RED.focus(li.dataset.id, {scale: 1.3, animation: true}); detalle(li.dataset.id);
+  }));
+  document.getElementById('detalle').textContent = t('ayuda');
+}
+
+function detalle(id) {
+  const n = POR_ID[id]; if (!n) return;
+  const el = document.getElementById('detalle');
+  if (n.tipo === 'caso') {
+    const filas = DATOS.aristas.filter(a => a.from === id).map(a => {
+      const p = POR_ID[a.to];
+      return a.tipo === 'cargada'
+        ? `<li>${esc(nomPais(p))}: <b>${esc(a.autoridades.join(', '))}</b> · ${esc(a.tipos.join(', '))} · ${usd(a.monto_usd_millones)}</li>`
+        : `<li>${esc(nomPais(p))}: <i>${t('sincargar')}</i></li>`;
+    }).join('');
+    el.innerHTML = `<h3 class="${n.presencia_argentina ? 'ar' : ''}">${esc(n.label)}</h3>
+      ${t('anio')}: <b>${n.anio ?? '—'}</b><br>${t('monto')}: <b>${usd(n.monto_usd_millones)}</b><br>
+      ${t('tipo')}: <b>${esc(n.tipo_resolucion || '—')}</b><br>${t('sector')}: <b>${esc(n.sector || '—')}</b><br>
+      ${t('sede')}: <b>${esc(n.pais_sede || '—')}</b><br>
+      ${t('filiales')}: <b>${n.presencia_argentina ? esc(n.filiales_ar.join(', ') || t('si')) : t('no')}</b>
+      <h2 style="margin-top:.8rem">${t('paises')}</h2><ul>${filas}</ul>`;
+  } else {
+    const suyos = DATOS.aristas.filter(a => a.to === id).map(a => POR_ID[a.from]);
+    el.innerHTML = `<h3 style="color:#f9ca24">${esc(nomPais(n))}</h3>
+      ${t('ncasos')}: <b>${n.casos}</b><br>${t('nres')}: <b>${n.resoluciones_cargadas}</b><br>
+      ${t('montop')}: <b>${n.resoluciones_cargadas ? usd(n.monto_usd_millones) : '—'}</b><br>${t('autor')}: <b>${esc(n.autoridades.join(', ') || '—')}</b>
+      <h2 style="margin-top:.8rem">${t('casos')}</h2><ul>${suyos.map(c => `<li data-id="${esc(c.id)}" class="${c.presencia_argentina ? 'ar' : ''}">${esc(c.label)}</li>`).join('')}</ul>`;
+    el.querySelectorAll('li[data-id]').forEach(li => li.addEventListener('click', () => {
+      RED.selectNodes([li.dataset.id]); RED.focus(li.dataset.id, {scale: 1.3, animation: true}); detalle(li.dataset.id);
+    }));
+  }
+}
+
+document.getElementById('chk-ar').addEventListener('change', () => DATOS && pintar());
+textos(); cargar();
+</script>
+</body>
+</html>
