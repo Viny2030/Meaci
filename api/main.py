@@ -629,7 +629,7 @@ def red_casos(db: Session = Depends(get_db)):
     nodos, aristas, por_pais = [], [], {}
     for caso in db.query(Caso).order_by(Caso.id).all():
         res = db.query(Resolucion).filter(Resolucion.caso_id == caso.id).all()
-        empresa = db.query(Empresa).get(res[0].empresa_id) if res else None
+        empresa = db.get(Empresa, res[0].empresa_id) if res else None
         cid = f"c{caso.id}"
         paises = _paises_caso(caso)
         for r in res:  # un país con resolución cargada que no figure en la lista igual cuenta
