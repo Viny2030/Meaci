@@ -248,3 +248,33 @@ def test_red_casos():
 def test_pagina_red():
     r = client.get("/red")
     assert r.status_code == 200 and "red-casos" in r.text
+
+
+# ── Ficha de frescura ─────────────────────────────────────────────────────────
+
+def test_frescura():
+    r = client.get("/api/frescura")
+    assert r.status_code == 200
+    d = r.json()
+    assert d["formato"] == "frescura/1" and d["sitio"] == "meaci"
+    por_id = {x["id"]: x for x in d["datos"]}
+    assert set(por_id) == {"casos", "presencia", "novedades"}
+    assert por_id["casos"]["estado"] == "al_dia" and por_id["casos"]["periodo_fin"] == "2026-03-31"
+    assert sum(d["resumen"].values()) == 3
+
+
+def test_frescura_novedad_vieja_es_alarma_de_contenido():
+    from datetime import datetime, timedelta
+    from api.main import SessionLocal, Novedad, ESTADO_NOVEDADES
+    db = SessionLocal()
+    n = Novedad(fuente="DOJ", titulo="Prueba frescura", empresa="Prueba", anio=2026, url="https://ejemplo.test/frescura",
+                estado="pendiente", detectada=datetime.now() - timedelta(days=40))
+    db.add(n); db.commit()
+    previa = ESTADO_NOVEDADES["ultima_revision"]
+    ESTADO_NOVEDADES["ultima_revision"] = datetime.now().isoformat()
+    try:
+        fila = next(x for x in client.get("/api/frescura").json()["datos"] if x["id"] == "novedades")
+        assert fila["estado"] == "atrasado_contenido" and fila["texto_estado"] == "Hay novedades sin revisar"
+    finally:
+        ESTADO_NOVEDADES["ultima_revision"] = previa
+        db.delete(n); db.commit(); db.close()

@@ -675,6 +675,37 @@ def red_casos(db: Session = Depends(get_db)):
     }
 
 
+@app.get("/api/frescura", tags=["Resumen"])
+def get_frescura(db: Session = Depends(get_db)):
+    """Ficha de frescura (formato común del ecosistema, ver frescura.py): de
+    dónde sale cada dato, qué período cubre, cuándo se cargó y si está atrasado."""
+    from frescura import evaluar
+
+    pendientes = db.query(Novedad).filter(Novedad.estado == "pendiente").order_by(Novedad.detectada).all()
+    mas_vieja = pendientes[0].detectada if pendientes else None
+    novedades = {
+        "id": "novedades", "dato": "Novedades del DOJ y la SFO", "fuente": "DOJ (FCPA) · SFO (gov.uk)",
+        "periodo": f"{len(pendientes)} sin revisar" if pendientes else "ninguna sin revisar",
+        "ultima_carga": ESTADO_NOVEDADES["ultima_revision"], "frecuencia": "diaria",
+        "max_dias_carga": 3, "nota": ESTADO_NOVEDADES["error"],
+    }
+    if mas_vieja:  # el reloj de contenido corre desde la novedad sin revisar más antigua
+        novedades.update(periodo_fin=mas_vieja, max_dias_periodo=30,
+                         texto_estado="Hay novedades sin revisar",
+                         nota=novedades["nota"] or "Se cargan a mano después de verificar que sean casos multijurisdiccionales.")
+    items = [
+        {"id": "casos", "dato": "Casos y resoluciones", "fuente": "OCDE (2026) · resoluciones de cada autoridad",
+         "fuente_url": INFORME_OCDE["url"], "periodo": INFORME_OCDE["periodo"], "periodo_fin": "2026-03-31",
+         "ultima_carga": None, "frecuencia": "carga manual", "max_dias_periodo": 545,
+         "nota": f"Cargadas {db.query(Resolucion).count()} de las {INFORME_OCDE['resoluciones']} resoluciones del informe."},
+        {"id": "presencia", "dato": "Presencia en Argentina (filiales y CUIT)", "fuente": "Relevamiento propio sobre fuentes públicas",
+         "periodo": "sin fecha de corte", "ultima_carga": None, "frecuencia": "carga manual",
+         "nota": "No tiene un plazo de actualización definido."},
+        novedades,
+    ]
+    return evaluar("meaci", items)
+
+
 @app.get("/red", include_in_schema=False)
 async def pagina_red():
     return FileResponse(str(frontend_path / "red_casos.html"))
